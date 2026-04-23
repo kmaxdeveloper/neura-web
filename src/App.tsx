@@ -15,6 +15,8 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminMatrix from './pages/admin/AdminMatrix';
 import AdminImport from './pages/admin/AdminImport';
 import AdminManagement from './pages/admin/AdminManagement';
+import TeacherSchedule from './pages/teacher/TeacherSchedule'; // Yangi
+import StudentTimetable from './pages/student/StudentTimetable'; // Yangi
 
 // Teacher Pages
 import TeacherDashboard from './pages/teacher/TeacherDashboard';
@@ -83,6 +85,7 @@ function AppContent() {
               <Route index element={<Navigate to="dashboard" replace />} />
               <Route path="dashboard" element={<TeacherDashboard />} />
               <Route path="qr-session/:lessonId" element={<QRWrapper />} />
+              <Route path="schedule" element={<TeacherSchedule />} /> {/* SHU QO'SHILDI */}
             </Routes>
           </TeacherLayout>
         </ProtectedRoute>
@@ -95,6 +98,7 @@ function AppContent() {
             <Routes>
               <Route index element={<Navigate to="dashboard" replace />} />
               <Route path="dashboard" element={<StudentDashboard />} />
+              <Route path="timetable" element={<StudentTimetable />} /> {/* SHU QO'SHILDI */}
             </Routes>
           </StudentLayout>
         </ProtectedRoute>

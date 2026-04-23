@@ -1,15 +1,15 @@
 import React, { createContext, useState, useEffect, type ReactNode } from 'react';
 
-// 1. User interfeysini kengaytiramiz
+// 1. User interfeysi
 interface User {
     token: string;
     role: string;
-    username: string; // Ism uchun joy ochdik
+    username: string;
 }
 
 interface AuthContextType {
     user: User | null;
-    login: (token: string, role: string, username: string) => void; // Username qo'shildi
+    login: (token: string, role: string, username: string) => void;
     logout: () => void;
     loading: boolean;
 }
@@ -21,22 +21,48 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        const role = localStorage.getItem('role');
-        const username = localStorage.getItem('username'); // Ismni ham olamiz
+        const initAuth = () => {
+            try {
+                const token = localStorage.getItem('token');
+                const role = localStorage.getItem('role');
+                const username = localStorage.getItem('username');
 
-        if (token && role && username) {
-            setUser({ token, role, username });
-        }
-        setLoading(false);
+                // Faqat hamma ma'lumot bor bo'lsa user'ni o'rnatamiz
+                if (token && role && username) {
+                    setUser({ 
+                        token: token.trim(), 
+                        role: role.trim(), 
+                        username: username.trim() 
+                    });
+                }
+            } catch (error) {
+                console.error("Auth initialization error:", error);
+                localStorage.clear(); // Xato bo'lsa tozalab tashlaymiz
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        initAuth();
     }, []);
 
-    // Login funksiyasiga username-ni ham qo'shdik
     const login = (token: string, role: string, username: string) => {
-        localStorage.setItem('token', token);
-        localStorage.setItem('role', role);
-        localStorage.setItem('username', username);
-        setUser({ token, role, username });
+        // Ma'lumotlarni xavfsiz holatga keltiramiz
+        const cleanToken = token.trim();
+        const cleanRole = role.trim();
+        const cleanUsername = username.trim();
+
+        // LocalStorage'ga yozish
+        localStorage.setItem('token', cleanToken);
+        localStorage.setItem('role', cleanRole);
+        localStorage.setItem('username', cleanUsername);
+
+        // State'ni yangilash
+        setUser({ 
+            token: cleanToken, 
+            role: cleanRole, 
+            username: cleanUsername 
+        });
     };
 
     const logout = () => {

@@ -17,32 +17,38 @@ const Login: React.FC = () => {
   const auth = useContext(AuthContext);
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
+  e.preventDefault();
+  setIsLoading(true);
 
-    try {
-      const res = await client.post('/api/v1/auth/login', { 
-        username: username, 
-        password: password 
-      });
+  try {
+    const res = await client.post('/api/v1/auth/login', { 
+      username: username, 
+      password: password 
+    });
+    
+    // 1. Destructuring va Type Casting (Turlarni aniqlash)
+    // serverUsername deb alias berdik, shunda yuqoridagi state bilan to'qnashmaydi
+    const { token, role, username: serverUsername } = res.data as { 
+      token: string; 
+      role: string; 
+      username: string 
+    }; 
+
+    if (token && auth) {
+      // 2. MUHIM: Endi uchinchi argument sifatida butun res.data emas, 
+      // aynan string bo'lgan serverUsername yuboriladi.
+      auth.login(token, role, serverUsername); 
       
-      const { token, role } = res.data; 
-
-      if (token && auth) {
-        // MUHIM: 3 ta argument yuborilyapti (token, role, fullData)
-        // Error yo'qolishi uchun uchinchi argument sifatida butun res.data yuborildi
-        auth.login(token, role, res.data); 
-        
-        console.log("Muvaffaqiyatli kirildi! Rol:", role);
-        navigate('/', { replace: true }); 
-      }
-    } catch (err: any) {
-      console.error("Login xatosi:", err.response?.data || err.message);
-      alert("Xatolik: " + (err.response?.data?.message || "Login yoki parol xato!"));
-    } finally {
-      setIsLoading(false);
+      console.log("Muvaffaqiyatli kirildi! Rol:", role);
+      navigate('/', { replace: true }); 
     }
-  };
+  } catch (err: any) {
+    console.error("Login xatosi:", err.response?.data || err.message);
+    alert("Xatolik: " + (err.response?.data?.message || "Login yoki parol xato!"));
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-[#050505] flex items-center justify-center p-0 md:p-6 font-sans text-white">

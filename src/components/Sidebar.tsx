@@ -9,17 +9,17 @@ import {
   LogOut, 
   ShieldCheck, 
   UserCircle,
-  Activity
+  Activity,
+  CalendarRange, // Ustozlar jadvali uchun
+  Clock          // Talabalar jadvali uchun
 } from 'lucide-react';
 
 const Sidebar = () => {
   const auth = useContext(AuthContext);
   const location = useLocation();
   
-  // TypeScript xatosini chetlab o'tish uchun any kasting ishlatamiz
   const user = auth?.user as any;
 
-  // Rolga qarab asosiy rangni aniqlash
   const getRoleTheme = () => {
     const role = user?.role;
     switch(role) {
@@ -44,18 +44,18 @@ const Sidebar = () => {
     ],
     [ROLES.TEACHER]: [
       { name: 'Dashboard', icon: <LayoutDashboard size={20}/>, path: '/teacher/dashboard' },
+      { name: 'Schedule', icon: <CalendarRange size={20}/>, path: '/teacher/schedule' }, // Matrix jadvali
       { name: 'My Groups', icon: <Users size={20}/>, path: '/teacher/groups' },
       { name: 'Mizan AI', icon: <BrainCircuit size={20}/>, path: '/teacher/mizan' },
     ],
     [ROLES.STUDENT]: [
       { name: 'My Profile', icon: <UserCircle size={20}/>, path: '/student/dashboard' },
+      { name: 'Timetable', icon: <Clock size={20}/>, path: '/student/timetable' }, // Talaba dars jadvali
       { name: 'Attendance', icon: <Activity size={20}/>, path: '/student/attendance' },
     ]
   };
 
   const currentMenuItems = user?.role ? (menuConfig[user.role as keyof typeof menuConfig] || []) : [];
-
-  // TypeScript xatosini oldini olish uchun ['fullName'] shaklida yoki any orqali olamiz
   const displayName = String(user?.fullName || user?.username || "Admin");
 
   return (
@@ -64,7 +64,7 @@ const Sidebar = () => {
       {/* LOGO BLOCK */}
       <div className="flex items-center gap-3 mb-10 group">
         <div className={`w-9 h-9 ${theme.bg} rounded-xl shadow-[0_0_25px_rgba(6,182,212,0.4)] flex items-center justify-center transition-transform group-hover:rotate-12`}>
-           <span className="text-black font-black text-xs italic">N</span>
+            <span className="text-black font-black text-xs italic">N</span>
         </div>
         <div>
           <span className="text-xl font-black tracking-tighter text-white uppercase italic block leading-none">NEURA</span>
