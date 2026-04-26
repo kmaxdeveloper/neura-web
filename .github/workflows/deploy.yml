@@ -36,7 +36,7 @@ jobs:
           target: ${{ secrets.REMOTE_TARGET }}
           strip_components: 1
 
-      - name: Post-deployment (Restart Nginx if needed)
+      - name: Post-deployment (Reload Nginx)
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -44,6 +44,6 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           script: |
-            # Nginx keshini tozalash yoki restart (ixtiyoriy)
-            # sudo systemctl restart nginx
-            echo "Deployment successful!"
+            # Nginx sozlamalarini yangilash
+            sudo systemctl reload nginx
+            echo "Deployment successful and Nginx reloaded!"
