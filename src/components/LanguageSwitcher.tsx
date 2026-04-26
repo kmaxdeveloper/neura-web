@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Languages, ChevronUp, Check } from 'lucide-react';
+import { ChevronUp, Check } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 const LanguageSwitcher: React.FC = () => {
@@ -33,15 +33,15 @@ const LanguageSwitcher: React.FC = () => {
         className="w-full flex items-center justify-between p-3.5 bg-[var(--surface-hover)] border border-[var(--border-subtle)] rounded-2xl group hover:border-cyan-500/30 transition-all duration-300"
       >
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-cyan-500/10 rounded-lg text-cyan-500 group-hover:scale-110 transition-transform">
-            <Languages size={18} />
+          <div className="w-10 h-10 bg-cyan-500/10 rounded-xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform border border-cyan-500/10">
+            {currentLang.flag}
           </div>
           <div className="text-left">
             <p className="text-[10px] font-black text-[var(--text-primary)] uppercase italic leading-none">
               {currentLang.label}
             </p>
             <p className="text-[8px] font-black text-[var(--text-muted)] uppercase tracking-widest mt-1">
-              Language Select
+              {currentLang.code} Mode
             </p>
           </div>
         </div>
