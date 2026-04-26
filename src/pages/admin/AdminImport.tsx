@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download, Upload, FileSpreadsheet, CheckCircle2, AlertCircle, Loader2, Database, Building2, Users, BookOpen, CalendarDays, Link, GraduationCap } from 'lucide-react';
+import { Download, Upload, CheckCircle2, AlertCircle, Loader2, Database, Building2, Users, BookOpen, CalendarDays, Link, GraduationCap } from 'lucide-react';
 import client from '../../api/client';
 
 const AdminImport: React.FC = () => {
@@ -51,22 +51,22 @@ const AdminImport: React.FC = () => {
 
   // --- KARTALAR UCHUN KOMPONENT ---
   const ImportCard = ({ title, desc, icon: Icon, type, endpoint, fileName, color = "cyan" }: any) => (
-    <div className={`p-8 border border-white/5 bg-white/[0.02] rounded-[40px] space-y-6 hover:border-${color === 'white' ? 'white' : color + '-500'}/20 transition-all group`}>
+    <div className={`p-8 border border-[var(--border-subtle)] bg-[var(--surface-card)] rounded-[40px] space-y-6 hover:border-${color === 'white' ? '[var(--border-strong)]' : color + '-500'}/20 transition-all group`}>
       <div className="flex justify-between items-start">
-        <div className={`p-3 bg-white/5 rounded-2xl ${color === 'white' ? 'text-white' : 'text-' + color + '-500'}`}><Icon size={28} /></div>
+        <div className={`p-3 bg-[var(--surface-hover)] rounded-2xl ${color === 'white' ? 'text-[var(--text-primary)]' : 'text-' + color + '-500'}`}><Icon size={28} /></div>
         <button 
           onClick={() => handleDownloadTemplate(type, fileName)}
-          className="text-[10px] font-black text-slate-500 hover:text-cyan-500 flex items-center gap-1 uppercase tracking-tighter transition-colors"
+          className="text-[10px] font-black text-[var(--text-secondary)] hover:text-cyan-500 flex items-center gap-1 uppercase tracking-tighter transition-colors"
         >
           <Download size={12} /> Template
         </button>
       </div>
       <div>
-        <h3 className="text-2xl font-bold uppercase italic">{title}</h3>
-        <p className="text-slate-500 text-sm mt-1">{desc}</p>
+        <h3 className="text-2xl font-bold uppercase italic text-[var(--text-primary)]">{title}</h3>
+        <p className="text-[var(--text-secondary)] text-sm mt-1">{desc}</p>
       </div>
       <label className="block cursor-pointer">
-        <div className={`w-full py-4 ${color === 'white' ? 'bg-white/10 hover:bg-white/20 border-white/30 text-white' : `bg-${color}-500/10 hover:bg-${color}-500/20 border-${color}-500/30 text-${color}-500`} border rounded-2xl flex items-center justify-center gap-2 font-bold transition-all uppercase italic text-sm`}>
+        <div className={`w-full py-4 ${color === 'white' ? 'bg-[var(--surface-hover)] hover:bg-[var(--surface-input)] border-[var(--border-strong)] text-[var(--text-primary)]' : `bg-${color}-500/10 hover:bg-${color}-500/20 border-${color}-500/30 text-${color}-500`} border rounded-2xl flex items-center justify-center gap-2 font-bold transition-all uppercase italic text-sm`}>
           {uploading ? <Loader2 className="animate-spin" /> : <><Upload size={18} /> Yuklash</>}
         </div>
         <input type="file" className="hidden" onChange={(e) => handleImport(e, endpoint)} accept=".xlsx, .xls" disabled={uploading} />
@@ -81,8 +81,8 @@ const AdminImport: React.FC = () => {
           <Database className="text-cyan-500" size={32} />
         </div>
         <div>
-          <h1 className="text-4xl font-black text-white uppercase italic">UniFace <span className="text-cyan-500">Terminal</span></h1>
-          <p className="text-slate-500 font-mono text-xs uppercase tracking-widest">Excel Bridge // Enterprise Data Control</p>
+          <h1 className="text-4xl font-black text-[var(--text-primary)] uppercase italic">UniFace <span className="text-cyan-500">Terminal</span></h1>
+          <p className="text-[var(--text-secondary)] font-mono text-xs uppercase tracking-widest">Excel Bridge // Enterprise Data Control</p>
         </div>
       </div>
 

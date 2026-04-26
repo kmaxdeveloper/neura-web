@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Clock, MapPin, Users, Loader2, Calendar, Shield } from 'lucide-react';
 import client from '../../api/client';
 import { AuthContext } from '../../context/AuthContext';
@@ -50,47 +50,47 @@ const TeacherSchedule = () => {
   return (
     <div className="p-3 lg:p-6 space-y-6 animate-in fade-in zoom-in duration-500 text-left">
       {/* Header */}
-      <div className="flex justify-between items-end border-b border-white/10 pb-6">
+      <div className="flex justify-between items-end border-b border-[var(--border-default)] pb-6">
         <div>
-          <h1 className="text-4xl font-black text-white uppercase italic tracking-tighter">
+          <h1 className="text-4xl font-black text-[var(--text-primary)] uppercase italic tracking-tighter">
             Instructor <span className="text-purple-500">Grid</span>
           </h1>
-          <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-1 italic">Matrix Academic Management</p>
+          <p className="text-[var(--text-secondary)] text-[10px] font-bold uppercase tracking-widest mt-1 italic">Matrix Academic Management</p>
         </div>
         <div className="hidden md:flex items-center gap-3 bg-purple-500/10 px-4 py-2 rounded-2xl border border-purple-500/20">
           <Shield size={16} className="text-purple-500" />
-          <span className="text-white font-black uppercase italic text-[10px]">{user?.username}</span>
+          <span className="text-[var(--text-primary)] font-black uppercase italic text-[10px]">{user?.username}</span>
         </div>
       </div>
 
       {/* Grid Table */}
-      <div className="overflow-hidden rounded-[28px] border border-white/5 bg-black/20 backdrop-blur-xl shadow-2xl">
+      <div className="overflow-hidden rounded-[28px] border border-[var(--border-subtle)] bg-[var(--surface-card)] backdrop-blur-xl shadow-2xl transition-colors duration-300">
         <div className="overflow-x-auto">
           <div className="min-w-[1050px]">
             {/* Days Header */}
-            <div className="grid grid-cols-7 border-b border-white/10 bg-white/[0.03]">
-              <div className="p-4 border-r border-white/10 flex items-center justify-center bg-purple-500/5">
+            <div className="grid grid-cols-7 border-b border-[var(--border-default)] bg-[var(--surface-elevated)]">
+              <div className="p-4 border-r border-[var(--border-default)] flex items-center justify-center bg-purple-500/5">
                 <Calendar className="text-purple-500" size={20} />
               </div>
               {DAYS.map(day => (
-                <div key={day} className="p-4 text-center border-r border-white/10 last:border-0">
-                  <span className="text-white font-black uppercase italic tracking-widest text-[11px]">{day}</span>
+                <div key={day} className="p-4 text-center border-r border-[var(--border-default)] last:border-0">
+                  <span className="text-[var(--text-primary)] font-black uppercase italic tracking-widest text-[11px]">{day}</span>
                 </div>
               ))}
             </div>
 
             {/* Rows (Pairs) */}
             {PAIRS.map(pair => (
-              <div key={pair} className="grid grid-cols-7 border-b border-white/10 last:border-0 group/row">
-                <div className="p-3 border-r border-white/10 flex flex-col items-center justify-center bg-white/[0.02] group-hover/row:bg-purple-500/5 transition-colors">
+              <div key={pair} className="grid grid-cols-7 border-b border-[var(--border-default)] last:border-0 group/row">
+                <div className="p-3 border-r border-[var(--border-default)] flex flex-col items-center justify-center bg-[var(--surface-elevated)] group-hover/row:bg-purple-500/5 transition-colors">
                   <span className="text-purple-500 font-black italic text-xl leading-none">{pair}</span>
-                  <span className="text-[8px] text-slate-500 uppercase font-black mt-1">Slot</span>
+                  <span className="text-[8px] text-[var(--text-secondary)] uppercase font-black mt-1">Slot</span>
                 </div>
 
                 {DAYS.map(day => {
                   const lesson = scheduleMap[`${day}-${pair}`];
                   return (
-                    <div key={`${day}-${pair}`} className="p-2 border-r border-white/10 last:border-0 min-h-[135px] relative group/cell">
+                    <div key={`${day}-${pair}`} className="p-2 border-r border-[var(--border-default)] last:border-0 min-h-[135px] relative group/cell">
                       {lesson ? (
                         <div className="h-full w-full bg-purple-500/5 border border-purple-500/10 rounded-2xl p-3 flex flex-col justify-between hover:bg-purple-500/15 hover:border-purple-500/40 transition-all duration-300 transform group-hover/cell:-translate-y-0.5 shadow-lg hover:shadow-purple-500/5">
                           <div className="space-y-2">
@@ -100,32 +100,32 @@ const TeacherSchedule = () => {
                                  {lesson.startTime.substring(0,5)} — {lesson.endTime.substring(0,5)}
                               </span>
                             </div>
-                            <h3 className="text-white font-extrabold leading-tight uppercase italic text-[11px] line-clamp-2 tracking-tight">
+                            <h3 className="text-[var(--text-primary)] font-extrabold leading-tight uppercase italic text-[11px] line-clamp-2 tracking-tight">
                               {lesson.subject}
                             </h3>
                           </div>
 
-                          <div className="space-y-2 pt-3 border-t border-white/5">
-                            <div className="flex items-center gap-2 text-slate-400">
+                          <div className="space-y-2 pt-3 border-t border-[var(--border-subtle)]">
+                            <div className="flex items-center gap-2 text-[var(--text-secondary)]">
                               <Users size={11} className="text-purple-500/60" />
                               <span className="text-[9px] font-bold uppercase truncate italic">
                                 {lesson.groups.length > 1 ? `${lesson.groups[0]} +` : lesson.groups[0]}
                               </span>
                             </div>
                             <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-1.5 text-slate-300 font-bold italic text-[9px]">
+                              <div className="flex items-center gap-1.5 text-[var(--text-secondary)] font-bold italic text-[9px]">
                                 <MapPin size={11} className="text-purple-500" />
                                 {lesson.room}
                               </div>
-                              <span className="text-[7px] bg-white/5 px-1.5 py-0.5 rounded border border-white/10 text-slate-400 font-black uppercase italic">
+                              <span className="text-[7px] bg-[var(--surface-hover)] px-1.5 py-0.5 rounded border border-[var(--border-default)] text-[var(--text-secondary)] font-black uppercase italic">
                                 {lesson.type.substring(0, 3)}
                               </span>
                             </div>
                           </div>
                         </div>
                       ) : (
-                        <div className="h-full w-full border border-dashed border-white/[0.03] rounded-2xl flex items-center justify-center opacity-20 group-hover/cell:opacity-100 transition-opacity">
-                            <div className="w-1 h-1 bg-white/20 rounded-full" />
+                        <div className="h-full w-full border border-dashed border-[var(--border-subtle)] rounded-2xl flex items-center justify-center opacity-20 group-hover/cell:opacity-100 transition-opacity">
+                            <div className="w-1 h-1 bg-[var(--text-muted)] rounded-full" />
                         </div>
                       )}
                     </div>
@@ -145,10 +145,10 @@ const TeacherSchedule = () => {
             <div className="h-2 w-2 bg-purple-500 rounded-full shadow-[0_0_8px_rgba(168,85,247,1)]" />
           </div>
           <p className="text-[10px] text-purple-500/70 font-black uppercase italic tracking-[0.2em]">
-            Neural Sync: <span className="text-white ml-2">{currentTime.toLocaleTimeString('uz-UZ', { hour12: false })}</span>
+            Neural Sync: <span className="text-[var(--text-primary)] ml-2">{currentTime.toLocaleTimeString('uz-UZ', { hour12: false })}</span>
           </p>
         </div>
-        <div className="text-[9px] font-mono text-slate-600 font-bold uppercase tracking-tighter">
+        <div className="text-[9px] font-mono text-[var(--text-muted)] font-bold uppercase tracking-tighter">
           Toshkent Axborot Texnologiyalari Universiteti
         </div>
       </div>

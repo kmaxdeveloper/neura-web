@@ -1,7 +1,73 @@
 @import "tailwindcss";
 
-body {
-  margin: 0;
-  background-color: #050505;
-  color: white;
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  /* ===== LIGHT THEME (Default) ===== */
+  :root {
+    /* Surface */
+    --surface-base: #F0F4F8;
+    --surface-card: #FFFFFF;
+    --surface-elevated: #F8FAFC;
+    --surface-overlay: #FFFFFF;
+    --surface-sidebar: #FFFFFF;
+    --surface-input: rgba(0, 0, 0, 0.04);
+    --surface-hover: rgba(0, 0, 0, 0.06);
+
+    /* Border */
+    --border-subtle: rgba(0, 0, 0, 0.07);
+    --border-default: rgba(0, 0, 0, 0.12);
+    --border-strong: rgba(0, 0, 0, 0.18);
+
+    /* Text */
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+    --text-muted: #94A3B8;
+    --text-inverted: #FFFFFF;
+
+    /* Glow & Shadow */
+    --glow-opacity: 0.08;
+    --shadow-color: rgba(0, 0, 0, 0.08);
+    --overlay-bg: rgba(0, 0, 0, 0.40);
+
+    /* Progress bar backgrounds */
+    --progress-bg: rgba(0, 0, 0, 0.06);
+  }
+
+  /* ===== DARK THEME ===== */
+  .dark {
+    /* Surface */
+    --surface-base: #050505;
+    --surface-card: #0A0A0A;
+    --surface-elevated: #111111;
+    --surface-overlay: #0D0D0D;
+    --surface-sidebar: #080808;
+    --surface-input: rgba(255, 255, 255, 0.05);
+    --surface-hover: rgba(255, 255, 255, 0.05);
+
+    /* Border */
+    --border-subtle: rgba(255, 255, 255, 0.05);
+    --border-default: rgba(255, 255, 255, 0.10);
+    --border-strong: rgba(255, 255, 255, 0.15);
+
+    /* Text */
+    --text-primary: #FFFFFF;
+    --text-secondary: #64748B;
+    --text-muted: #374151;
+    --text-inverted: #000000;
+
+    /* Glow & Shadow */
+    --glow-opacity: 0.25;
+    --shadow-color: rgba(0, 0, 0, 0.5);
+    --overlay-bg: rgba(0, 0, 0, 0.90);
+
+    /* Progress bar backgrounds */
+    --progress-bg: rgba(255, 255, 255, 0.05);
+  }
+
+  body {
+    background-color: var(--surface-base);
+    color: var(--text-primary);
+    @apply transition-colors duration-300;
+  }
 }

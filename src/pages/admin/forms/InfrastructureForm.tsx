@@ -1,4 +1,3 @@
-import React from 'react';
 import { InputItem, SelectBox } from '../components/FormElements';
 
 export const GenericForm = ({ activeTab, formData, setFormData, auxiliaryData }: any) => {
@@ -27,7 +26,7 @@ export const GenericForm = ({ activeTab, formData, setFormData, auxiliaryData }:
             onChange={(v: string) => setFormData({...formData, facultyId: v})} />
           {activeTab === 'groups' && 
             <InputItem label="Kurs" type="number" value={formData.course} 
-              onChange={(v) => setFormData({...formData, course: v})} />}
+              onChange={(v: string) => setFormData({...formData, course: v})} />}
         </div>
       )}
     </div>

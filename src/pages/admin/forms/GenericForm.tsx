@@ -1,4 +1,3 @@
-import React from 'react';
 import { InputItem, SelectBox } from '../components/FormElements';
 
 interface GenericFormProps {
@@ -74,7 +73,7 @@ export const GenericForm: React.FC<GenericFormProps> = ({
 
       {/* 4. Agar oddiy bino yoki fakultet bo'lsa, qo'shimcha maydon shart emas */}
       {['faculties', 'buildings', 'patoklar'].includes(activeTab) && (
-        <p className="text-[10px] text-slate-600 font-mono uppercase tracking-widest ml-3 italic">
+        <p className="text-[10px] text-[var(--text-muted)] font-mono uppercase tracking-widest ml-3 italic">
           * Ushbu bo'lim uchun faqat nom kiritish kifoya.
         </p>
       )}

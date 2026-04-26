@@ -1,22 +1,28 @@
 import { useContext } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { ROLES } from '../constants/roles'; 
 import { 
   LayoutDashboard, 
+  Shield, 
   Users, 
   BrainCircuit, 
   LogOut, 
-  ShieldCheck, 
   UserCircle,
   Activity,
-  CalendarRange, // Ustozlar jadvali uchun
-  Clock          // Talabalar jadvali uchun
+  CalendarRange, 
+  Clock,
+  Settings2
 } from 'lucide-react';
+import ThemeToggle from './ThemeToggle';
+import LanguageSwitcher from './LanguageSwitcher';
+import { useLanguage } from '../context/LanguageContext';
 
 const Sidebar = () => {
   const auth = useContext(AuthContext);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { t } = useLanguage();
   
   const user = auth?.user as any;
 
@@ -38,20 +44,21 @@ const Sidebar = () => {
 
   const menuConfig = {
     [ROLES.ADMIN]: [
-      { name: 'Dashboard', icon: <LayoutDashboard size={20}/>, path: '/admin/dashboard' },
-      { name: 'UniFace Logs', icon: <Users size={20}/>, path: '/admin/attendance' },
-      { name: 'Security', icon: <ShieldCheck size={20}/>, path: '/admin/security' },
+      { name: t('dashboard'), icon: <LayoutDashboard size={20}/>, path: '/admin/dashboard' },
+      { name: t('logs'), icon: <Shield size={20}/>, path: '/admin/logs' },
+      { name: t('settings'), icon: <Settings2 size={20}/>, path: '/admin/settings' },
     ],
     [ROLES.TEACHER]: [
-      { name: 'Dashboard', icon: <LayoutDashboard size={20}/>, path: '/teacher/dashboard' },
-      { name: 'Schedule', icon: <CalendarRange size={20}/>, path: '/teacher/schedule' }, // Matrix jadvali
-      { name: 'My Groups', icon: <Users size={20}/>, path: '/teacher/groups' },
-      { name: 'Mizan AI', icon: <BrainCircuit size={20}/>, path: '/teacher/mizan' },
+      { name: t('dashboard'), icon: <LayoutDashboard size={20}/>, path: '/teacher/dashboard' },
+      { name: t('schedule'), icon: <CalendarRange size={20}/>, path: '/teacher/schedule' },
+      { name: t('groups'), icon: <Users size={20}/>, path: '/teacher/groups' },
+      { name: t('mizan'), icon: <BrainCircuit size={20}/>, path: '/teacher/mizan' },
     ],
     [ROLES.STUDENT]: [
-      { name: 'My Profile', icon: <UserCircle size={20}/>, path: '/student/dashboard' },
-      { name: 'Timetable', icon: <Clock size={20}/>, path: '/student/timetable' }, // Talaba dars jadvali
-      { name: 'Attendance', icon: <Activity size={20}/>, path: '/student/attendance' },
+      { name: t('profile'), icon: <UserCircle size={20}/>, path: '/student/dashboard' },
+      { name: t('timetable'), icon: <Clock size={20}/>, path: '/student/timetable' },
+      { name: t('attendance'), icon: <Activity size={20}/>, path: '/student/attendance' },
+      { name: t('mizan'), icon: <BrainCircuit size={20}/>, path: '/student/mizan' },
     ]
   };
 
@@ -59,7 +66,7 @@ const Sidebar = () => {
   const displayName = String(user?.fullName || user?.username || "Admin");
 
   return (
-    <div className="w-64 h-screen border-r border-white/5 bg-[#080808] flex flex-col p-6 sticky top-0">
+    <div className="w-full h-full flex flex-col p-6 transition-colors duration-300 overflow-hidden">
       
       {/* LOGO BLOCK */}
       <div className="flex items-center gap-3 mb-10 group">
@@ -67,7 +74,7 @@ const Sidebar = () => {
             <span className="text-black font-black text-xs italic">N</span>
         </div>
         <div>
-          <span className="text-xl font-black tracking-tighter text-white uppercase italic block leading-none">NEURA</span>
+          <span className="text-xl font-black tracking-tighter text-[var(--text-primary)] uppercase italic block leading-none">NEURA</span>
           <span className={`text-[9px] ${theme.color} font-mono tracking-[0.2em] uppercase`}>Control OS</span>
         </div>
       </div>
@@ -82,11 +89,11 @@ const Sidebar = () => {
               to={item.path}
               className={`flex items-center gap-4 p-3.5 rounded-2xl transition-all duration-300 group border ${
                 isActive 
-                ? `bg-white/[0.03] ${theme.color} ${theme.border} shadow-xl` 
-                : 'text-slate-500 border-transparent hover:bg-white/5 hover:text-white'
+                ? `bg-[var(--surface-hover)] ${theme.color} ${theme.border} shadow-xl` 
+                : 'text-[var(--text-secondary)] border-transparent hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]'
               }`}
             >
-              <div className={`${isActive ? theme.color : 'group-hover:text-white'} transition-colors`}>
+              <div className={`${isActive ? theme.color : 'group-hover:text-[var(--text-primary)]'} transition-colors`}>
                 {item.icon}
               </div>
               <span className="font-bold text-sm tracking-tight">{item.name}</span>
@@ -95,24 +102,38 @@ const Sidebar = () => {
         })}
       </nav>
 
+      {/* SYSTEM CONTROLS */}
+      <div className="border-t border-[var(--border-subtle)] pt-4 space-y-2">
+        <LanguageSwitcher />
+        <ThemeToggle />
+      </div>
+
       {/* USER PROFILE & LOGOUT */}
-      <div className="mt-auto border-t border-white/5 pt-6 space-y-4">
-        {user && (
-          <div className="px-3 flex items-center gap-3 py-3 bg-white/[0.02] rounded-2xl border border-white/5 overflow-hidden group hover:border-white/10 transition-colors">
-            <div className={`min-w-[32px] w-8 h-8 rounded-lg ${theme.bg} flex items-center justify-center text-[10px] font-black text-black uppercase`}>
-              {displayName.charAt(0)}
+      <div className="mt-auto border-t border-[var(--border-subtle)] pt-6 space-y-4">
+        {user && (() => {
+          const roleSlug = String(user.role || '').toLowerCase().replace('role_', '').trim();
+          const profilePath = `/${roleSlug}/profile`;
+          
+          return (
+            <div 
+              onClick={() => navigate(profilePath)}
+              className="px-3 flex items-center gap-3 py-3 bg-[var(--surface-hover)] rounded-2xl border border-[var(--border-subtle)] overflow-hidden group hover:border-cyan-500/30 transition-all cursor-pointer shadow-lg hover:shadow-cyan-500/5 active:scale-95"
+            >
+              <div className={`min-w-[32px] w-8 h-8 rounded-lg ${theme.bg} flex items-center justify-center text-[10px] font-black text-black uppercase group-hover:scale-110 transition-transform`}>
+                {displayName.charAt(0)}
+              </div>
+              
+              <div className="flex-1 overflow-hidden">
+                <p className="text-[11px] font-black text-[var(--text-primary)] truncate uppercase tracking-tighter group-hover:text-cyan-500 transition-colors">
+                  {displayName}
+                </p>
+                <p className={`text-[8px] ${theme.color} font-mono truncate uppercase tracking-[0.2em] opacity-60`}>
+                  {roleSlug}
+                </p>
+              </div>
             </div>
-            
-            <div className="overflow-hidden">
-              <p className="text-[11px] font-black text-white truncate uppercase tracking-tighter">
-                {displayName}
-              </p>
-              <p className={`text-[8px] ${theme.color} font-mono truncate uppercase tracking-[0.2em]`}>
-                {String(user?.role || '').replace('ROLE_', '')}
-              </p>
-            </div>
-          </div>
-        )}
+          );
+        })()}
 
         <button 
           onClick={() => auth?.logout()}

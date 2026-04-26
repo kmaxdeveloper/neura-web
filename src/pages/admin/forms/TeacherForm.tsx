@@ -1,4 +1,3 @@
-import React from 'react';
 import { InputItem, SelectBox, MultiSelect } from '../components/FormElements'; // Asosiy fayldan helperlarni olamiz
 
 export const TeacherForm = ({ formData, setFormData, isEditMode, auxiliaryData, toggleSelection }: any) => {

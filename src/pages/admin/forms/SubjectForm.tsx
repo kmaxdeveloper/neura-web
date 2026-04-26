@@ -1,4 +1,3 @@
-import React from 'react';
 import { InputItem, SelectBox } from '../components/FormElements';
 
 export const SubjectForm = ({ formData, setFormData, auxiliaryData }: any) => {

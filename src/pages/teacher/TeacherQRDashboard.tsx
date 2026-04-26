@@ -85,13 +85,13 @@ const TeacherQRDashboard: React.FC<{ lessonId: number }> = ({ lessonId }) => {
       </Link>
 
       {!isConnected ? (
-        <div className="p-10 text-center border border-white/5 bg-white/[0.02] rounded-[40px]">
+        <div className="p-10 text-center border border-[var(--border-subtle)] bg-[var(--surface-card)] rounded-[40px]">
           <div className="animate-spin inline-block w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full mb-4"></div>
-          <p className="text-slate-400 font-mono text-xs uppercase tracking-widest">Securing Connection...</p>
+          <p className="text-[var(--text-secondary)] font-mono text-xs uppercase tracking-widest">Securing Connection...</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-          <div className="p-8 border border-white/5 bg-white/[0.02] rounded-[40px] flex flex-col items-center justify-center space-y-6">
+          <div className="p-8 border border-[var(--border-subtle)] bg-[var(--surface-card)] rounded-[40px] flex flex-col items-center justify-center space-y-6">
             <div className="relative p-6 bg-white rounded-3xl">
               {qrToken ? (
                 (() => {
@@ -103,25 +103,25 @@ const TeacherQRDashboard: React.FC<{ lessonId: number }> = ({ lessonId }) => {
               )}
             </div>
             <div className="flex items-center gap-4">
-              <div className="h-2 w-32 bg-white/5 rounded-full overflow-hidden">
+              <div className="h-2 w-32 bg-[var(--progress-bg)] rounded-full overflow-hidden">
                 <div className="h-full bg-purple-500 transition-all duration-1000" style={{ width: `${(timeLeft / 10) * 100}%` }} />
               </div>
               <span className="font-mono text-purple-500 font-bold">{timeLeft}s</span>
             </div>
           </div>
 
-          <div className="p-8 border border-white/5 bg-white/[0.02] rounded-[40px] h-[450px] flex flex-col">
-            <h3 className="text-xl font-bold uppercase italic mb-6 flex items-center gap-2">
+          <div className="p-8 border border-[var(--border-subtle)] bg-[var(--surface-card)] rounded-[40px] h-[450px] flex flex-col">
+            <h3 className="text-xl font-bold uppercase italic mb-6 flex items-center gap-2 text-[var(--text-primary)]">
               <Clock3 size={20} className="text-purple-500" /> Live Logs
             </h3>
             <div className="flex-1 overflow-y-auto space-y-3 custom-scrollbar pr-2">
               {students.length === 0 ? (
-                <p className="text-slate-600 italic text-sm">Talabalar skan qilishi kutilmoqda...</p>
+                <p className="text-[var(--text-muted)] italic text-sm">Talabalar skan qilishi kutilmoqda...</p>
               ) : (
                 students.map((s, idx) => (
-                  <div key={idx} className="p-4 border border-white/5 bg-white/[0.01] rounded-2xl flex justify-between items-center animate-in slide-in-from-right-4">
-                    <span className="font-bold text-slate-200">{s.studentName}</span>
-                    <span className="text-[10px] font-mono text-slate-500">{s.timestamp}</span>
+                  <div key={idx} className="p-4 border border-[var(--border-subtle)] bg-[var(--surface-elevated)] rounded-2xl flex justify-between items-center animate-in slide-in-from-right-4">
+                    <span className="font-bold text-[var(--text-primary)]">{s.studentName}</span>
+                    <span className="text-[10px] font-mono text-[var(--text-secondary)]">{s.timestamp}</span>
                   </div>
                 ))
               )}

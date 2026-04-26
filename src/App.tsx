@@ -1,6 +1,7 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './context/AuthContext';
+import { LanguageProvider } from './context/LanguageContext';
 import ProtectedRoute from './routes/ProtectedRoute';
 
 // Layouts
@@ -9,12 +10,18 @@ import { AdminLayout, TeacherLayout, StudentLayout } from './components/Layouts'
 // Pages
 import Login from './pages/Login';
 import Attendance from './pages/Attendance';
+import MizanAI from './pages/MizanAI';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminMatrix from './pages/admin/AdminMatrix';
 import AdminImport from './pages/admin/AdminImport';
 import AdminManagement from './pages/admin/AdminManagement';
+import SystemLogs from './pages/admin/SystemLogs';
+import AdminSettings from './pages/admin/AdminSettings';
+import AdminProfile from './pages/admin/AdminProfile';
+import TeacherProfile from './pages/teacher/TeacherProfile';
+import StudentProfile from './pages/student/StudentProfile';
 import TeacherSchedule from './pages/teacher/TeacherSchedule'; // Yangi
 import StudentTimetable from './pages/student/StudentTimetable'; // Yangi
 
@@ -69,9 +76,11 @@ function AppContent() {
               <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="matrix" element={<AdminMatrix />} />
               <Route path="attendance" element={<Attendance />} />
-              // Admin layout ichidagi Routes qismiga qo'shish:
               <Route path="import" element={<AdminImport />} />
               <Route path="management" element={<AdminManagement />} />
+              <Route path="logs" element={<SystemLogs />} />
+              <Route path="settings" element={<AdminSettings />} />
+              <Route path="profile" element={<AdminProfile />} />
             </Routes>
           </AdminLayout>
         </ProtectedRoute>
@@ -85,7 +94,9 @@ function AppContent() {
               <Route index element={<Navigate to="dashboard" replace />} />
               <Route path="dashboard" element={<TeacherDashboard />} />
               <Route path="qr-session/:lessonId" element={<QRWrapper />} />
-              <Route path="schedule" element={<TeacherSchedule />} /> {/* SHU QO'SHILDI */}
+              <Route path="schedule" element={<TeacherSchedule />} />
+              <Route path="mizan" element={<MizanAI />} />
+              <Route path="profile" element={<TeacherProfile />} />
             </Routes>
           </TeacherLayout>
         </ProtectedRoute>
@@ -98,7 +109,9 @@ function AppContent() {
             <Routes>
               <Route index element={<Navigate to="dashboard" replace />} />
               <Route path="dashboard" element={<StudentDashboard />} />
-              <Route path="timetable" element={<StudentTimetable />} /> {/* SHU QO'SHILDI */}
+              <Route path="timetable" element={<StudentTimetable />} />
+              <Route path="mizan" element={<MizanAI />} />
+              <Route path="profile" element={<StudentProfile />} />
             </Routes>
           </StudentLayout>
         </ProtectedRoute>
@@ -113,11 +126,13 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <AppContent />
-      </Router>
-    </AuthProvider>
+    <LanguageProvider>
+      <AuthProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </AuthProvider>
+    </LanguageProvider>
   );
 }
 
