@@ -8,13 +8,34 @@ import {
 import ServerTime from '../components/ServerTime';
 import { useLanguage } from '../context/LanguageContext';
 
+import api from '../api';
+
 const MizanAI: React.FC = () => {
   const { t } = useLanguage();
   const [file, setFile] = useState<File | null>(null);
+  const [subject, setSubject] = useState<string>('');
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [analysisStep, setAnalysisStep] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [subjects, setSubjects] = useState<any[]>([]);
+  const [isLoadingSubjects, setIsLoadingSubjects] = useState(true);
+
+  React.useEffect(() => {
+    const fetchSubjects = async () => {
+      try {
+        const response = await api.get('/api/v1/teacher/get-subjects');
+        // Backenddan o'qituvchi fanlari keladi (id, name, ... ob'ektlar ko'rinishida)
+        setSubjects(response.data);
+      } catch (error) {
+        console.error("Fanlarni yuklashda xatolik:", error);
+      } finally {
+        setIsLoadingSubjects(false);
+      }
+    };
+    fetchSubjects();
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
@@ -29,45 +50,70 @@ const MizanAI: React.FC = () => {
     }
   };
 
-  const startEvaluation = () => {
+  const startEvaluation = async () => {
     if (!file) return;
+    if (!subject) {
+      alert("Iltimos, tahlil qilish uchun fanni tanlang!");
+      return;
+    }
+    
     setIsEvaluating(true);
     setResult(null);
     setAnalysisStep(1);
 
-    const steps = [
-      "Parsing document structure...",
-      "Extracting technical entities...",
-      "Analyzing semantic logic...",
-      "Cross-referencing with Neura Knowledge Base...",
-      "Finalizing Gemini assessment..."
-    ];
-
-    let currentStep = 0;
+    // Animatsiya uchun qadamlar (backend ishlaganda vizual tasavvur uchun)
     const interval = setInterval(() => {
-      currentStep++;
-      if (currentStep < steps.length) {
-        setAnalysisStep(currentStep + 1);
-      } else {
-        clearInterval(interval);
-        finishEvaluation();
-      }
-    }, 1200);
-  };
+      setAnalysisStep(prev => (prev < 5 ? prev + 1 : prev));
+    }, 1500);
 
-  const finishEvaluation = () => {
-    setIsEvaluating(false);
-    setResult({
-      score: 88,
-      grade: 'A',
-      feedback: "The submission demonstrates a high level of technical proficiency. The architectural implementation of the 'Neural Bridge' component is particularly noteworthy. Some minor optimizations in memory management are recommended for peak performance.",
-      criteria: [
-        { name: 'Originality', score: 96, icon: Sparkles },
-        { name: 'Structural Integrity', score: 84, icon: Cpu },
-        { name: 'Technical Depth', score: 90, icon: BarChart3 },
-        { name: 'Clarity & Logic', score: 82, icon: ShieldCheck },
-      ]
-    });
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      // Fan id si orqali uning nomini topish va backendga jo'natish
+      const selectedSubjectObj = subjects.find(s => s.id === parseInt(subject));
+      if (selectedSubjectObj) {
+        formData.append('subjectName', selectedSubjectObj.name);
+      }
+
+      // Backend API ga jo'natish
+      const response = await api.post('/api/v1/teacher/mizan/evaluate', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      clearInterval(interval);
+      setAnalysisStep(5);
+      
+      const data = response.data;
+      
+      // Backenddan kelgan mezonlarga ikonkalarni ulash
+      const iconMap: Record<string, any> = {
+        'Originality': Sparkles,
+        'Structural Integrity': Cpu,
+        'Technical Depth': BarChart3,
+        'Clarity & Logic': ShieldCheck
+      };
+
+      const mappedCriteria = data.criteria.map((c: any) => ({
+        ...c,
+        icon: iconMap[c.name] || BrainCircuit // default ikonka
+      }));
+
+      setResult({
+        ...data,
+        criteria: mappedCriteria
+      });
+
+    } catch (error) {
+      console.error("Mizan AI tahlilida xatolik:", error);
+      clearInterval(interval);
+      // Xato bo'lsa foydalanuvchiga bildirish (ixtiyoriy alert o'rniga UI da ko'rsatish mumkin)
+      alert("Tahlil vaqtida xatolik yuz berdi. Iltimos qayta urinib ko'ring.");
+    } finally {
+      setIsEvaluating(false);
+    }
   };
 
   return (
@@ -94,10 +140,31 @@ const MizanAI: React.FC = () => {
         
         {/* 2. Upload & Controls (Left) */}
         <div className="lg:col-span-5 space-y-6">
+          
+          {/* Fan Tanlash Dropdown (Always visible) */}
+          <div className="w-full text-left space-y-2 bg-[var(--surface-card)] p-6 rounded-[32px] border border-purple-500/20 shadow-lg relative z-10">
+            <label className="text-[10px] font-black uppercase tracking-widest text-purple-500 ml-2">Fanni Tanlang *</label>
+            <select 
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              className="w-full p-4 bg-black/20 border border-purple-500/20 rounded-2xl text-[var(--text-primary)] text-sm outline-none focus:border-purple-500 transition-all font-medium italic cursor-pointer appearance-none"
+            >
+              {isLoadingSubjects ? (
+                <option value="" disabled className="bg-[var(--surface-base)] text-[var(--text-muted)]">Yuklanmoqda...</option>
+              ) : subjects.length === 0 ? (
+                <option value="" disabled className="bg-[var(--surface-base)] text-[var(--text-muted)]">Sizda biriktirilgan fanlar yo'q</option>
+              ) : (
+                subjects.map(s => (
+                  <option key={s.id} value={s.id} className="bg-[var(--surface-base)] text-[var(--text-primary)]">{s.name}</option>
+                ))
+              )}
+            </select>
+          </div>
+
           <div 
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleDrop}
-            className={`group h-[480px] bg-[var(--surface-card)] border-2 border-dashed rounded-[56px] flex flex-col items-center justify-center p-10 transition-all duration-700 relative overflow-hidden shadow-xl ${
+            className={`group h-[380px] bg-[var(--surface-card)] border-2 border-dashed rounded-[56px] flex flex-col items-center justify-center p-10 transition-all duration-700 relative overflow-hidden shadow-xl ${
               file ? 'border-purple-500/40 bg-purple-500/[0.02]' : 'border-[var(--border-subtle)] hover:border-purple-500/30'
             }`}
           >
@@ -151,7 +218,7 @@ const MizanAI: React.FC = () => {
                   </button>
                   <button 
                     onClick={startEvaluation}
-                    disabled={isEvaluating}
+                    disabled={isEvaluating || !subject}
                     className="flex-1 py-4 bg-purple-500 text-black rounded-2xl font-black uppercase italic text-[10px] tracking-widest flex items-center justify-center gap-3 hover:bg-purple-400 transition-all shadow-2xl shadow-purple-500/20 disabled:opacity-50"
                   >
                     {isEvaluating ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}

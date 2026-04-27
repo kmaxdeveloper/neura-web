@@ -57,8 +57,7 @@ const Sidebar = () => {
     [ROLES.STUDENT]: [
       { name: t('profile'), icon: <UserCircle size={20}/>, path: '/student/dashboard' },
       { name: t('timetable'), icon: <Clock size={20}/>, path: '/student/timetable' },
-      { name: t('attendance'), icon: <Activity size={20}/>, path: '/student/attendance' },
-      { name: t('mizan'), icon: <BrainCircuit size={20}/>, path: '/student/mizan' },
+      { name: t('attendance'), icon: <Activity size={20}/>, path: '/student/attendance' }
     ]
   };
 
