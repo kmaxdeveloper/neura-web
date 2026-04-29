@@ -5,6 +5,7 @@ import { AuthContext } from '../../context/AuthContext';
 
 const DAYS = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
 const PAIRS = [1, 2, 3, 4, 5, 6];
+const daysOfWeek = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
 
 const StudentTimetable = () => {
   const [timetable, setTimetable] = useState<any[]>([]);
@@ -60,11 +61,17 @@ const StudentTimetable = () => {
               <div className="p-4 border-r border-[var(--border-default)] flex items-center justify-center">
                 <Calendar className="text-emerald-500" size={18} />
               </div>
-              {DAYS.map(day => (
-                <div key={day} className="p-4 text-center border-r border-[var(--border-default)] last:border-0">
-                  <span className="text-[var(--text-primary)] font-black uppercase italic tracking-widest text-[11px]">{day}</span>
-                </div>
-              ))}
+              {DAYS.map(day => {
+                const isToday = day === daysOfWeek[new Date().getDay()];
+                return (
+                  <div key={day} className={`p-4 text-center border-r border-[var(--border-default)] last:border-0 ${isToday ? 'bg-emerald-500/20 relative' : ''}`}>
+                    {isToday && (
+                      <div className="absolute top-0 left-0 right-0 h-1 bg-emerald-500 animate-pulse" />
+                    )}
+                    <span className={`text-[var(--text-primary)] font-black uppercase italic tracking-widest text-[11px] ${isToday ? 'text-emerald-400' : ''}`}>{day}</span>
+                  </div>
+                );
+              })}
             </div>
 
             {/* Table Body */}
@@ -80,8 +87,9 @@ const StudentTimetable = () => {
                 {/* Daily Slots - Medium Height (130px) */}
                 {DAYS.map(day => {
                   const lesson = scheduleMap[`${day}-${pair}`];
+                  const isToday = day === daysOfWeek[new Date().getDay()];
                   return (
-                    <div key={`${day}-${pair}`} className="p-2 border-r border-[var(--border-default)] last:border-0 min-h-[135px] relative group/cell">
+                    <div key={`${day}-${pair}`} className={`p-2 border-r border-[var(--border-default)] last:border-0 min-h-[135px] relative group/cell ${isToday ? 'bg-emerald-500/[0.03]' : ''}`}>
                       {lesson ? (
                         <div className="h-full w-full bg-[var(--surface-hover)] border border-[var(--border-default)] rounded-2xl p-3.5 flex flex-col justify-between hover:bg-emerald-500/10 hover:border-emerald-500/30 transition-all duration-300 transform hover:-translate-y-0.5">
                           <div className="space-y-2">
