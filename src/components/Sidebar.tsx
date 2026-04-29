@@ -17,8 +17,10 @@ import {
 import ThemeToggle from './ThemeToggle';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLanguage } from '../context/LanguageContext';
+import logo from '../assets/logo.png';
 
 const Sidebar = () => {
+
   const auth = useContext(AuthContext);
   const location = useLocation();
   const navigate = useNavigate();
@@ -69,8 +71,8 @@ const Sidebar = () => {
       
       {/* LOGO BLOCK */}
       <div className="flex items-center gap-3 mb-10 group">
-        <div className={`w-9 h-9 ${theme.bg} rounded-xl shadow-[0_0_25px_rgba(6,182,212,0.4)] flex items-center justify-center transition-transform group-hover:rotate-12`}>
-            <span className="text-black font-black text-xs italic">N</span>
+        <div className={`w-10 h-10 ${theme.bg} rounded-xl shadow-xl flex items-center justify-center transition-transform group-hover:rotate-6 overflow-hidden border border-white/10`}>
+            <img src={logo} alt="Neura Logo" className="w-full h-full object-cover scale-110" />
         </div>
         <div>
           <span className="text-xl font-black tracking-tighter text-[var(--text-primary)] uppercase italic block leading-none">NEURA</span>

@@ -4,8 +4,10 @@ import client from '../api/client';
 import { AuthContext } from '../context/AuthContext';
 import { 
   Lock, User, ArrowRight, Loader2, 
-  School, Eye, EyeOff, ShieldCheck 
+  Eye, EyeOff, ShieldCheck 
 } from 'lucide-react';
+
+import logo from '../assets/logo.png';
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -69,8 +71,8 @@ const Login: React.FC = () => {
           {/* Logo va Matn */}
           <div className="relative z-10 h-full flex flex-col justify-between p-12">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-cyan-500 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.4)]">
-                <School className="text-black" size={24} strokeWidth={3} />
+              <div className="w-12 h-12 bg-cyan-500 rounded-xl flex items-center justify-center shadow-2xl overflow-hidden border border-white/20">
+                <img src={logo} alt="Neura Logo" className="w-full h-full object-cover scale-110" />
               </div>
               <h1 className="text-2xl font-black uppercase tracking-tighter text-white italic">Neura<span className="text-cyan-500"> System</span></h1>
             </div>
@@ -94,10 +96,10 @@ const Login: React.FC = () => {
           
           {/* Mobile Logo (Faqat telefonda ko'rinadi) */}
           <div className="flex items-center gap-2 md:hidden mb-10">
-            <div className="w-8 h-8 bg-cyan-500 rounded-lg flex items-center justify-center">
-              <School className="text-black" size={18} strokeWidth={3} />
+            <div className="w-10 h-10 bg-cyan-500 rounded-lg flex items-center justify-center overflow-hidden border border-white/10">
+              <img src={logo} alt="Neura Logo" className="w-full h-full object-cover" />
             </div>
-            <h1 className="text-xl font-black uppercase tracking-tighter text-[var(--text-primary)] italic">Uni<span className="text-cyan-500">Face</span></h1>
+            <h1 className="text-xl font-black uppercase tracking-tighter text-[var(--text-primary)] italic">NEURA</h1>
           </div>
 
           <div className="mb-10">
