@@ -77,11 +77,7 @@ const MizanAI: React.FC = () => {
       }
 
       // Backend API ga jo'natish
-      const response = await api.post('/api/v1/teacher/mizan/evaluate', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
+      const response = await api.post('/api/v1/teacher/mizan/evaluate', formData);
 
       clearInterval(interval);
       setAnalysisStep(5);
