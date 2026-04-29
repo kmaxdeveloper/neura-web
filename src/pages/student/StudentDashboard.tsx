@@ -12,24 +12,39 @@ const StudentDashboard: React.FC = () => {
   const { t } = useLanguage();
   const { user } = useContext(AuthContext) || {};
   const [schedule, setSchedule] = useState<any[]>([]);
-  const [stats] = useState({
-    attendance: 85,
-    points: 1250,
-    rank: 12
-  });
+  const [stats, setStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Talabaning bugungi darslarini olish
-    client.get('/api/v1/student/today-lessons')
-      .then(res => setSchedule(res.data))
-      .catch(() => {
-        // Test uchun vaqtinchalik ma'lumot
-        setSchedule([
-          { id: 1, subject: "Ma'lumotlar tuzilmasi", time: "09:00", room: "412-xona", teacher: "A. Karimov" },
-          { id: 2, subject: "Algoritmlar", time: "10:30", room: "205-lab", teacher: "S. Rahmonov" }
+    const fetchData = async () => {
+      try {
+        const [scheduleRes, statsRes] = await Promise.all([
+          client.get('/api/v1/student/today-lessons'),
+          client.get('/api/v1/student/attendance/stats')
         ]);
-      });
+        setSchedule(Array.isArray(scheduleRes.data) ? scheduleRes.data : []);
+        setStats(statsRes.data);
+      } catch (err) {
+        console.error("Dashboard fetch error:", err);
+        setSchedule([
+          { id: 1, subject: "Software Architecture", time: "09:00", room: "412-xona", teacher: "A. Karimov" }
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, []);
+
+  const overallAttendance = stats?.subjects?.length > 0 
+    ? (stats.subjects.reduce((acc: number, s: any) => acc + (100 - s.missedPercentage), 0) / stats.subjects.length).toFixed(1)
+    : "100";
+
+  if (loading) return (
+    <div className="h-[80vh] flex items-center justify-center">
+      <div className="w-12 h-12 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin" />
+    </div>
+  );
 
   return (
     <div className="animate-in fade-in duration-700 space-y-8 pb-10">
@@ -47,7 +62,7 @@ const StudentDashboard: React.FC = () => {
           <ServerTime />
           <div className="px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center gap-2">
             <Zap size={16} className="text-emerald-500" />
-            <span className="text-emerald-500 font-bold text-sm">{stats.points} XP</span>
+            <span className="text-emerald-500 font-bold text-sm">1250 XP</span>
           </div>
           <button className="p-2 bg-[var(--surface-input)] border border-[var(--border-default)] rounded-2xl hover:bg-[var(--surface-hover)] transition-all relative">
             <BellRing size={20} className="text-[var(--text-secondary)]" />
@@ -63,9 +78,9 @@ const StudentDashboard: React.FC = () => {
             <CheckCircle2 size={60} />
           </div>
           <p className="text-[var(--text-secondary)] text-xs font-black uppercase tracking-tighter">Davomat</p>
-          <h3 className="text-4xl font-black mt-1 text-[var(--text-primary)]">{stats.attendance}%</h3>
+          <h3 className="text-4xl font-black mt-1 text-[var(--text-primary)]">{overallAttendance}%</h3>
           <div className="mt-4 h-1.5 w-full bg-[var(--progress-bg)] rounded-full overflow-hidden">
-            <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${stats.attendance}%` }} />
+            <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${overallAttendance}%` }} />
           </div>
         </div>
 
@@ -73,18 +88,18 @@ const StudentDashboard: React.FC = () => {
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
             <TrendingUp size={60} />
           </div>
-          <p className="text-[var(--text-secondary)] text-xs font-black uppercase tracking-tighter">Reyting</p>
-          <h3 className="text-4xl font-black mt-1 text-[var(--text-primary)]">#{stats.rank}</h3>
-          <p className="text-emerald-500 text-[10px] mt-2 font-bold uppercase tracking-widest">Top 5% ichida</p>
+          <p className="text-[var(--text-secondary)] text-xs font-black uppercase tracking-tighter">Status</p>
+          <h3 className={`text-4xl font-black mt-1 ${stats?.overallRiskStatus === 'DANGER' ? 'text-red-500' : 'text-emerald-500'}`}>{stats?.overallRiskStatus || 'SAFE'}</h3>
+          <p className="text-[var(--text-secondary)] text-[10px] mt-2 font-bold uppercase tracking-widest italic">Academic Risk Assessment</p>
         </div>
 
         <div className="p-6 border border-[var(--border-subtle)] bg-[var(--surface-card)] rounded-[35px] relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
             <Award size={60} />
           </div>
-          <p className="text-[var(--text-secondary)] text-xs font-black uppercase tracking-tighter">Yutuqlar</p>
-          <h3 className="text-4xl font-black mt-1 text-[var(--text-primary)]">8/12</h3>
-          <p className="text-[var(--text-secondary)] text-[10px] mt-2 font-mono uppercase tracking-widest">Master of Code Badge</p>
+          <p className="text-[var(--text-secondary)] text-xs font-black uppercase tracking-tighter">Missed Hours</p>
+          <h3 className="text-4xl font-black mt-1 text-[var(--text-primary)]">{stats?.totalMissedHours || 0}h</h3>
+          <p className="text-[var(--text-secondary)] text-[10px] mt-2 font-mono uppercase tracking-widest">Total NB hours</p>
         </div>
       </div>
 

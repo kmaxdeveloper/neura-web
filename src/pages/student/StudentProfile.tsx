@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { 
   Mail, GraduationCap, Zap, 
   Trophy, Clock, Activity, Target,
@@ -7,8 +7,54 @@ import {
   Sparkles, Flame, CheckCircle2
 } from 'lucide-react';
 import ServerTime from '../../components/ServerTime';
+import client from '../../api/client';
+import { AuthContext } from '../../context/AuthContext';
 
 const StudentProfile: React.FC = () => {
+  const { user } = useContext(AuthContext) || {};
+  const [profile, setProfile] = useState<any>(null);
+  const [stats, setStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [profileRes, statsRes] = await Promise.all([
+          client.get('/api/v1/student/profile'),
+          client.get('/api/v1/student/attendance/stats')
+        ]);
+        setProfile(profileRes.data);
+        setStats(statsRes.data);
+      } catch (err) {
+        console.error("Profile fetch error:", err);
+        // Fallback for demo
+        setProfile({
+          fullName: "Alex Johnson",
+          studentId: "2100101",
+          groupName: "CS-202 // AI Specialty",
+          username: user?.username || "ajohnson"
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [user]);
+
+  if (loading) return (
+    <div className="h-[80vh] flex items-center justify-center">
+      <div className="w-12 h-12 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin" />
+    </div>
+  );
+
+  const firstName = profile?.fullName?.split(' ')[0] || "User";
+  const lastName = profile?.fullName?.split(' ').slice(1).join(' ') || "";
+
+  // Davomat foizini hisoblash
+  const overallAttendance = stats?.subjects?.length > 0 
+    ? (stats.subjects.reduce((acc: number, s: any) => acc + (100 - s.missedPercentage), 0) / stats.subjects.length).toFixed(1)
+    : "100";
+
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000 space-y-6 pb-20 text-[var(--text-primary)]">
       
@@ -21,26 +67,25 @@ const StudentProfile: React.FC = () => {
             <div className="relative">
                <div className="w-28 h-28 rounded-[32px] bg-gradient-to-tr from-emerald-500 to-cyan-500 p-0.5 shadow-xl shadow-emerald-500/20 group-hover:rotate-3 transition-transform duration-700">
                  <div className="w-full h-full rounded-[30px] bg-[var(--surface-base)] flex items-center justify-center overflow-hidden relative">
-                   <span className="text-4xl font-black text-emerald-500 italic">S</span>
+                   <span className="text-4xl font-black text-emerald-500 italic">{firstName[0]}</span>
                    <div className="absolute bottom-0 inset-x-0 h-1/4 bg-emerald-500/10 backdrop-blur-sm flex items-center justify-center border-t border-white/5">
-                     <span className="text-[8px] font-black uppercase tracking-widest text-emerald-500">Lv. 24</span>
+                     <span className="text-[8px] font-black uppercase tracking-widest text-emerald-500">ID: {profile?.studentId}</span>
                    </div>
                  </div>
                </div>
-               <button className="absolute -bottom-1 -right-1 p-2 bg-white text-black rounded-xl shadow-lg hover:scale-110 active:scale-95 transition-all">
-                 <Camera size={14} />
-               </button>
             </div>
 
             <div className="text-center md:text-left space-y-2">
                <div className="flex flex-col md:flex-row items-center gap-3">
-                 <h1 className="text-3xl font-black uppercase italic tracking-tighter">Alex <span className="text-emerald-500">Johnson</span></h1>
+                 <h1 className="text-3xl font-black uppercase italic tracking-tighter">{firstName} <span className="text-emerald-500">{lastName}</span></h1>
                  <div className="px-3 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center gap-2">
-                    <Flame size={12} className="text-orange-500 animate-bounce" />
-                    <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">12 Day Streak</span>
+                    <Flame size={12} className={`text-orange-500 ${stats?.overallRiskStatus === 'DANGER' ? 'animate-ping' : 'animate-bounce'}`} />
+                    <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">
+                       {stats?.overallRiskStatus === 'SAFE' ? 'Elite Student' : 'Attention Required'}
+                    </span>
                  </div>
                </div>
-               <p className="text-sm font-bold text-[var(--text-secondary)] italic">Undergraduate // AI Engineering Specialty</p>
+               <p className="text-sm font-bold text-[var(--text-secondary)] italic">Undergraduate // {profile?.groupName}</p>
                <div className="flex flex-wrap justify-center md:justify-start gap-2 pt-1">
                   {['Neural Networks', 'Python', 'UX Design'].map(tag => (
                     <span key={tag} className="px-2.5 py-1 bg-black/20 border border-white/5 rounded-lg text-[7px] font-black uppercase tracking-widest text-emerald-500">#{tag}</span>
@@ -62,7 +107,7 @@ const StudentProfile: React.FC = () => {
               
               <div className="flex items-center justify-between">
                 <h3 className="text-[10px] font-black uppercase italic tracking-[0.3em] text-emerald-500 flex items-center gap-2">
-                  <TrendingUp size={14} /> Skill Progression
+                  <TrendingUp size={14} /> Academic Performance
                 </h3>
                 <Sparkles size={14} className="text-emerald-500/30" />
               </div>
@@ -70,8 +115,8 @@ const StudentProfile: React.FC = () => {
               <div className="space-y-6">
                 {[
                   { name: 'Core GPA', val: '3.92', icon: Star, color: 'text-amber-500', progress: 92 },
-                  { name: 'Attendance', val: '96%', icon: CheckCircle2, color: 'text-emerald-500', progress: 96 },
-                  { name: 'Mizan Rank', val: '#5', icon: Trophy, color: 'text-purple-500', progress: 85 },
+                  { name: 'Attendance', val: `${overallAttendance}%`, icon: CheckCircle2, color: 'text-emerald-500', progress: parseFloat(overallAttendance) },
+                  { name: 'Missed Hours', val: `${stats?.totalMissedHours || 0}h`, icon: Clock, color: 'text-red-500', progress: Math.min(100, (stats?.totalMissedHours || 0) * 2) },
                 ].map((s, i) => (
                   <div key={i} className="space-y-2 group">
                     <div className="flex justify-between items-end">
@@ -89,7 +134,12 @@ const StudentProfile: React.FC = () => {
               </div>
 
               <div className="pt-6 border-t border-white/5 flex gap-3">
-                 <button className="flex-1 py-4 bg-emerald-500 text-black font-black uppercase italic text-[9px] tracking-widest rounded-2xl shadow-lg shadow-emerald-500/10 hover:bg-emerald-400 transition-all">View Full Transcript</button>
+                 <button 
+                   onClick={() => window.location.href='/student/attendance'}
+                   className="flex-1 py-4 bg-emerald-500 text-black font-black uppercase italic text-[9px] tracking-widest rounded-2xl shadow-lg shadow-emerald-500/10 hover:bg-emerald-400 transition-all"
+                 >
+                    Full Attendance Report
+                 </button>
                  <button className="p-4 bg-white/5 rounded-2xl hover:bg-white/10 transition-all text-emerald-500 border border-white/5"><Compass size={18} /></button>
               </div>
            </div>
@@ -97,9 +147,9 @@ const StudentProfile: React.FC = () => {
            <div className="bg-black/20 border border-white/5 rounded-[32px] p-6 space-y-4">
               <div className="flex items-center gap-3 text-emerald-500">
                 <ShieldCheck size={20} />
-                <h4 className="text-[10px] font-black uppercase italic tracking-widest">Privacy Protocol</h4>
+                <h4 className="text-[10px] font-black uppercase italic tracking-widest">Neura OS Security</h4>
               </div>
-              <p className="text-[10px] text-[var(--text-muted)] font-medium leading-relaxed italic">Your academic records are encrypted using Neura Guard Level 2. Data access is strictly controlled.</p>
+              <p className="text-[10px] text-[var(--text-muted)] font-medium leading-relaxed italic">Your face identity and attendance logs are cryptographically secured by Neura Guard.</p>
            </div>
         </div>
 
@@ -109,21 +159,21 @@ const StudentProfile: React.FC = () => {
              <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/[0.01] blur-[80px]" />
              
              <h3 className="text-sm font-black uppercase italic text-[var(--text-primary)] mb-8 flex items-center gap-3">
-                <Award className="text-emerald-500" size={18} /> Performance Metrics
+                <Award className="text-emerald-500" size={18} /> Credentials & Info
              </h3>
 
              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-5">
                    {[
-                     { label: 'Student Email', value: 'a.johnson@student.edu', icon: Mail },
-                     { label: 'Current Group', value: 'CS-202 // AI Specialty', icon: GraduationCap },
-                     { label: 'Academic Year', value: 'Sophomore // 2023-2024', icon: Clock },
+                     { label: 'Username', value: profile?.username || "---", icon: Mail },
+                     { label: 'Group', value: profile?.groupName || "---", icon: GraduationCap },
+                     { label: 'Risk Status', value: stats?.overallRiskStatus || "SAFE", icon: Activity },
                    ].map((item, i) => (
                      <div key={i} className="space-y-1.5">
                        <label className="text-[9px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)] ml-1">{item.label}</label>
                        <div className="flex items-center gap-3 p-4 bg-[var(--surface-hover)] border border-[var(--border-subtle)] rounded-2xl">
-                         <item.icon size={16} className="text-emerald-500" />
-                         <span className="text-xs font-bold truncate text-[var(--text-primary)]">{item.value}</span>
+                         <item.icon size={16} className={item.value === 'DANGER' ? 'text-red-500' : 'text-emerald-500'} />
+                         <span className={`text-xs font-bold truncate ${item.value === 'DANGER' ? 'text-red-500' : 'text-[var(--text-primary)]'}`}>{item.value}</span>
                        </div>
                      </div>
                    ))}

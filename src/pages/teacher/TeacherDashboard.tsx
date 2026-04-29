@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BrainCircuit, Zap, Users, MapPin } from 'lucide-react';
+import { BrainCircuit, Zap, Users, MapPin, ChevronRight, BookOpen } from 'lucide-react';
 import { AuthContext } from '../../context/AuthContext';
 import client from '../../api/client';
 import ServerTime from '../../components/ServerTime';
@@ -9,42 +9,33 @@ import { useLanguage } from '../../context/LanguageContext';
 const TeacherDashboard: React.FC = () => {
   const { t } = useLanguage();
   const [subjects, setSubjects] = useState<any[]>([]);
+  const [todayLessons, setTodayLessons] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { user } = useContext(AuthContext) || {};
 
   useEffect(() => {
-    client.get('/api/v1/teacher/get-subjects')
-      .then(res => {
-        setSubjects(Array.isArray(res.data) ? res.data : []);
-      })
-      .catch(err => {
+    const fetchData = async () => {
+      try {
+        const [subRes, todayRes] = await Promise.all([
+          client.get('/api/v1/teacher/get-subjects'),
+          client.get('/api/v1/teacher/lessons/today')
+        ]);
+        setSubjects(Array.isArray(subRes.data) ? subRes.data : []);
+        setTodayLessons(Array.isArray(todayRes.data) ? todayRes.data : []);
+      } catch (err) {
         console.error("Dashboard error:", err);
         // Fallback test ma'lumotlari
         setSubjects([{ id: 101, name: "Dasturiy ta'minot arxitekturasi", group: "941-21", room: "412-xona", time: "09:00" }]);
-      })
-      .finally(() => setLoading(false));
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, []);
 
-  const handleStartSession = async (subject: any) => {
-    try {
-      const currentUser = user as any; 
-      const payload = {
-        subjectId: Number(subject.id),
-        teacherUsername: currentUser?.username,
-        groupIds: [Number(subject.groupId || 1)], // Backendda Matrix bilan bog'lanadi
-        lessonType: "PRACTICE"
-      };
-
-      const res = await client.post('/api/v1/teacher/start-lesson', payload);
-      const lessonId = res.data;
-
-      if (lessonId) {
-        navigate(`/teacher/qr-session/${lessonId}`);
-      }
-    } catch (err: any) {
-      alert(`Xatolik: ${err.response?.data?.error || "Darsni boshlashda xato!"}`);
-    }
+  const navigateToSyllabus = (subject: any) => {
+    navigate(`/teacher/syllabus/${subject.id}`);
   };
 
   if (loading) return (
@@ -89,40 +80,93 @@ const TeacherDashboard: React.FC = () => {
                </div>
             </div>
             <button 
-              onClick={() => handleStartSession(subjects[0] || {id: 101})}
+              onClick={() => navigateToSyllabus(subjects[0] || {id: 101})}
               className="w-full md:w-auto bg-purple-500 hover:bg-purple-600 text-black font-black px-10 py-5 rounded-2xl flex items-center justify-center gap-3 transition-all hover:scale-105 active:scale-95 italic uppercase text-sm"
             >
-              Davomatni boshlash <Zap size={18} fill="black" />
+              Mavzuni tanlash <Zap size={18} fill="black" />
             </button>
          </div>
       </div>
 
-      {/* OTHER SUBJECTS GRID */}
+      {/* TODAY'S LESSONS GRID */}
       <div>
         <h3 className="text-xs font-black text-[var(--text-secondary)] uppercase tracking-[0.3em] mb-6 flex items-center gap-4">
           <span className="h-[1px] flex-1 bg-[var(--border-subtle)]"></span>
-          Scheduled Courses
+          BUGUNGI DARSLAR (SCHEDULE)
           <span className="h-[1px] flex-1 bg-[var(--border-subtle)]"></span>
         </h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {todayLessons.length === 0 ? (
+            <div className="col-span-full py-10 text-center text-[var(--text-muted)] italic border-2 border-dashed border-[var(--border-subtle)] rounded-[40px]">
+              Bugun uchun darslar topilmadi.
+            </div>
+          ) : (
+            todayLessons.map((lesson) => (
+              <div 
+                key={lesson.id} 
+                className={`group p-6 border border-[var(--border-subtle)] bg-[var(--surface-card)] rounded-[32px] transition-all text-left relative overflow-hidden ${lesson.canStart ? 'hover:border-purple-500/40' : 'opacity-60 cursor-not-allowed'}`}
+              >
+                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-100 transition-opacity">
+                  <BrainCircuit className={lesson.canStart ? "text-purple-500" : "text-gray-500"} size={40} />
+                </div>
+                
+                <div className="flex items-center gap-2 mb-2">
+                  <span className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase ${lesson.canStart ? 'bg-emerald-500 text-black animate-pulse' : 'bg-gray-700 text-gray-400'}`}>
+                    {lesson.canStart ? 'ACTIVE NOW' : 'WAITING'}
+                  </span>
+                  <span className="text-[8px] font-mono text-[var(--text-muted)] uppercase">{lesson.startTime} - {lesson.endTime}</span>
+                </div>
+
+                <h4 className="text-lg font-black text-[var(--text-primary)] uppercase italic group-hover:text-purple-400 transition-colors">{lesson.subjectName}</h4>
+                <p className="text-[var(--text-secondary)] font-mono text-[10px] mt-1 uppercase tracking-tighter italic">Groups: {lesson.groupName} | Room: {lesson.room}</p>
+                
+                <div className="mt-8 flex items-center justify-between">
+                  <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">ID: {lesson.id}</div>
+                  {lesson.canStart ? (
+                    <button 
+                      onClick={() => navigateToSyllabus({id: lesson.subjectId})}
+                      className="px-6 py-2.5 bg-purple-500 text-black font-black text-[10px] uppercase italic rounded-xl flex items-center gap-2 hover:bg-purple-400 transition-all hover:scale-105 active:scale-95"
+                    >
+                      Darsni Boshlash <Zap size={14} fill="black" />
+                    </button>
+                  ) : (
+                    <div className="w-8 h-8 rounded-full border border-[var(--border-default)] flex items-center justify-center">
+                      <MapPin size={14} className="text-[var(--text-muted)]" />
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* ALL SUBJECTS SECTION */}
+      <div>
+        <h3 className="text-xs font-black text-[var(--text-secondary)] uppercase tracking-[0.3em] mb-6 flex items-center gap-4">
+          <span className="h-[1px] flex-1 bg-[var(--border-subtle)]"></span>
+          BARCHA FANLARIM (MY COURSES)
+          <span className="h-[1px] flex-1 bg-[var(--border-subtle)]"></span>
+        </h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {subjects.map((subject) => (
             <button 
               key={subject.id} 
-              onClick={() => handleStartSession(subject)}
-              className="group p-6 border border-[var(--border-subtle)] bg-[var(--surface-card)] rounded-[32px] hover:bg-[var(--surface-elevated)] hover:border-purple-500/40 transition-all text-left relative overflow-hidden"
+              onClick={() => navigateToSyllabus(subject)}
+              className="group p-6 border border-[var(--border-subtle)] bg-[var(--surface-card)] rounded-[32px] hover:border-purple-500/40 transition-all text-left relative overflow-hidden"
             >
-              <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-100 transition-opacity">
-                <BrainCircuit className="text-purple-500" size={40} />
+              <div className="absolute -bottom-4 -right-4 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                <BookOpen size={80} className="text-purple-500" />
               </div>
               
-              <h4 className="text-lg font-black text-[var(--text-primary)] uppercase italic group-hover:text-purple-400 transition-colors">{subject.name}</h4>
-              <p className="text-[var(--text-secondary)] font-mono text-[10px] mt-1 uppercase tracking-tighter italic">Module: {subject.group || "310-23"}</p>
+              <h4 className="text-md font-black text-[var(--text-primary)] uppercase italic group-hover:text-purple-400 transition-colors leading-tight">{subject.name}</h4>
               
-              <div className="mt-8 flex items-center justify-between">
-                <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">ID: {subject.id}</div>
+              <div className="mt-6 flex items-center justify-between">
+                <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">View Syllabus</div>
                 <div className="w-8 h-8 rounded-full border border-[var(--border-default)] flex items-center justify-center group-hover:bg-purple-500 group-hover:border-purple-500 transition-all">
-                  <Zap size={14} className="text-[var(--text-secondary)] group-hover:text-black transition-colors" />
+                  <ChevronRight size={14} className="text-[var(--text-secondary)] group-hover:text-black transition-colors" />
                 </div>
               </div>
             </button>

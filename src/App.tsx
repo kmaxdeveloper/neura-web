@@ -28,9 +28,11 @@ import StudentTimetable from './pages/student/StudentTimetable'; // Yangi
 // Teacher Pages
 import TeacherDashboard from './pages/teacher/TeacherDashboard';
 import TeacherQRDashboard from './pages/teacher/TeacherQRDashboard';
+import TeacherSyllabus from './pages/teacher/TeacherSyllabus';
 
 // Student Pages
 import StudentDashboard from './pages/student/StudentDashboard';
+import StudentAttendance from './pages/student/StudentAttendance';
 
 const ROLES = {
   ADMIN: 'ROLE_ADMIN',
@@ -94,6 +96,7 @@ function AppContent() {
               <Route index element={<Navigate to="dashboard" replace />} />
               <Route path="dashboard" element={<TeacherDashboard />} />
               <Route path="qr-session/:lessonId" element={<QRWrapper />} />
+              <Route path="syllabus/:subjectId" element={<TeacherSyllabus />} />
               <Route path="schedule" element={<TeacherSchedule />} />
               <Route path="mizan" element={<MizanAI />} />
               <Route path="profile" element={<TeacherProfile />} />
@@ -110,6 +113,7 @@ function AppContent() {
               <Route index element={<Navigate to="dashboard" replace />} />
               <Route path="dashboard" element={<StudentDashboard />} />
               <Route path="timetable" element={<StudentTimetable />} />
+              <Route path="attendance" element={<StudentAttendance />} />
               <Route path="mizan" element={<MizanAI />} />
               <Route path="profile" element={<StudentProfile />} />
             </Routes>

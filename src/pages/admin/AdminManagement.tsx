@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { 
   Plus, Search, Trash2, Edit3, X, Loader2, Layers, School, BookOpen, 
   GraduationCap, Users, LayoutGrid, Building2, Briefcase, Info, Activity, 
-  TrendingUp, ChevronRight, Hash, Database
+  TrendingUp, ChevronRight, Hash, Database, FileText
 } from 'lucide-react';
 import client from '../../api/client';
 
@@ -10,6 +10,7 @@ import client from '../../api/client';
 import { TeacherForm } from './forms/TeacherForm';
 import { StudentForm } from './forms/StudentForm';
 import { SubjectForm } from './forms/SubjectForm';
+import { TopicForm } from './forms/TopicForm';
 import { CurriculumForm } from './forms/CurriculumForm';
 import { GenericForm } from './forms/GenericForm';
 import ServerTime from '../../components/ServerTime';
@@ -37,7 +38,7 @@ interface BaseItem {
   username?: string;
 }
 
-type TabType = 'teachers' | 'students' | 'groups' | 'subjects' | 'infrastructure' | 'departments' | 'faculties' | 'buildings' | 'patoklar' | 'curriculum';
+type TabType = 'teachers' | 'students' | 'groups' | 'subjects' | 'topics' | 'infrastructure' | 'departments' | 'faculties' | 'buildings' | 'patoklar' | 'curriculum';
 
 const AdminManagement: React.FC = () => {
   const { t } = useLanguage();
@@ -65,6 +66,7 @@ const AdminManagement: React.FC = () => {
     students: { label: 'Talabalar', icon: GraduationCap, desc: 'Student Registry', color: 'text-purple-500' },
     groups: { label: t('groups'), icon: Users, desc: 'Class Groups', color: 'text-orange-500' },
     subjects: { label: 'Fanlar', icon: LayoutGrid, desc: 'Subject Catalog', color: 'text-emerald-500' },
+    topics: { label: 'Mavzular', icon: FileText, desc: 'Syllabus Topics', color: 'text-yellow-400' },
     infrastructure: { label: 'Xonalar', icon: School, desc: 'Rooms & Labs', color: 'text-rose-500' },
     faculties: { label: 'Fakultetlar', icon: Building2, desc: 'University Faculties', color: 'text-indigo-500' },
     departments: { label: 'Kafedralar', icon: Layers, desc: 'Departments', color: 'text-pink-500' },
@@ -80,9 +82,27 @@ const AdminManagement: React.FC = () => {
         groups: '/api/v1/admin/get-groups', subjects: '/api/v1/admin/get-subjects',
         infrastructure: '/api/v1/admin/get-rooms', departments: '/api/v1/admin/get-depart',
         faculties: '/api/v1/admin/get-faculties', buildings: '/api/v1/admin/get-buildings',
-        patoklar: '/api/v1/admin/patok/all', curriculum: '/api/v1/admin/curriculum'
+        patoklar: '/api/v1/admin/patok/all', curriculum: '/api/v1/admin/curriculum',
+        topics: '/api/v1/admin/get-subjects' // Temporary, see logic below
       };
-      const res = await client.get(endpoints[activeTab]);
+      
+      let endpoint = endpoints[activeTab];
+      // Maxsus holat: Mavzularni olish uchun fan tanlanishi kerak yoki hammasini olish
+      if (activeTab === 'topics') {
+         const res = await client.get('/api/v1/admin/get-subjects');
+         const allSubjects = res.data || [];
+         const allTopics: any[] = [];
+         for (const s of allSubjects) {
+            const tRes = await client.get(`/api/v1/admin/get-topics/subject/${s.id}`);
+            if (Array.isArray(tRes.data)) {
+               allTopics.push(...tRes.data.map((t: any) => ({ ...t, subject: s })));
+            }
+         }
+         setList(allTopics);
+         return;
+      }
+
+      const res = await client.get(endpoint);
       setList(Array.isArray(res.data) ? res.data : []);
     } catch (err) { setList([]); } finally { setLoading(false); }
   };
@@ -122,6 +142,8 @@ const AdminManagement: React.FC = () => {
       initialData = { fullName: item.fullName, groupId: (item as any).group?.id, studentId: item.id };
     } else if (activeTab === 'infrastructure') {
       initialData = { ...item, buildingId: item.building?.id };
+    } else if (activeTab === 'topics') {
+      initialData = { ...item, subjectId: item.subject?.id };
     }
     setFormData(initialData);
     setIsModalOpen(true);
@@ -150,6 +172,17 @@ const AdminManagement: React.FC = () => {
         data.append('groupId', formData.groupId);
         if (selectedFile) data.append('image', selectedFile);
         await client.post(url, data);
+      } else if (activeTab === 'topics') {
+        const params = new URLSearchParams();
+        params.append('title', formData.title);
+        params.append('description', formData.description || '');
+        if (!isEditMode) params.append('subjectId', formData.subjectId);
+        
+        await client({
+           method: isEditMode ? 'put' : 'post',
+           url: isEditMode ? `/api/v1/admin/update-topic/${editingId}` : `/api/v1/admin/set-topic`,
+           params: params
+        });
       } else {
         await (client as any)[method](url, payload);
       }
@@ -306,7 +339,8 @@ const AdminManagement: React.FC = () => {
                         {activeTab === 'teachers' ? item.department?.name : 
                          activeTab === 'infrastructure' ? `${item.building?.name} // Cap: ${item.capacity}` : 
                          activeTab === 'curriculum' ? `${item.group?.name} // ${item.hoursPerWeek}h` : 
-                         activeTab === 'students' ? `${item.group?.name || 'Unmapped'}` : 'System Resource'}
+                         activeTab === 'students' ? `${item.group?.name || 'Unmapped'}` : 
+                         activeTab === 'topics' ? `Subject: ${item.subject?.name}` : 'System Resource'}
                       </p>
                     </div>
                     
@@ -323,7 +357,16 @@ const AdminManagement: React.FC = () => {
                     <button onClick={() => handleEdit(item)} className="flex-1 bg-white/5 hover:bg-cyan-500 hover:text-black py-2.5 rounded-xl text-[9px] font-black uppercase italic transition-all border border-white/5 flex items-center justify-center gap-2">
                       <Edit3 size={12} /> {t('edit')}
                     </button>
-                    <button className="px-3 bg-rose-500/5 hover:bg-rose-500 text-rose-500 hover:text-black py-2.5 rounded-xl border border-rose-500/20 transition-all flex items-center justify-center">
+                    <button 
+                      onClick={() => {
+                        if (window.confirm("Haqiqatdan ham o'chirmoqchimisiz?")) {
+                          client.delete(`/api/v1/admin/delete-${activeTab.replace(/s$/, '')}/${item.id}`)
+                            .then(() => fetchData())
+                            .catch(() => alert("O'chirishda xatolik!"));
+                        }
+                      }}
+                      className="px-3 bg-rose-500/5 hover:bg-rose-500 text-rose-500 hover:text-black py-2.5 rounded-xl border border-rose-500/20 transition-all flex items-center justify-center"
+                    >
                       <Trash2 size={14} />
                     </button>
                   </div>
@@ -356,6 +399,7 @@ const AdminManagement: React.FC = () => {
               {activeTab === 'teachers' && <TeacherForm formData={formData} setFormData={setFormData} isEditMode={isEditMode} toggleSelection={toggleSelection} auxiliaryData={{faculties, departments, subjects, groups}} />}
               {activeTab === 'students' && <StudentForm formData={formData} setFormData={setFormData} isEditMode={isEditMode} setSelectedFile={setSelectedFile} auxiliaryData={{groups}} />}
               {activeTab === 'subjects' && <SubjectForm formData={formData} setFormData={setFormData} auxiliaryData={{departments}} />}
+              {activeTab === 'topics' && <TopicForm formData={formData} setFormData={setFormData} auxiliaryData={{subjects}} />}
               {activeTab === 'curriculum' && <CurriculumForm formData={formData} setFormData={setFormData} auxiliaryData={{subjects, groups}} />}
               {['infrastructure', 'groups', 'faculties', 'buildings', 'departments', 'patoklar'].includes(activeTab) && <GenericForm activeTab={activeTab} formData={formData} setFormData={setFormData} auxiliaryData={{buildings, faculties}} />}
 
