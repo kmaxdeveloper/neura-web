@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Activity, AlertTriangle, CheckCircle2, 
+  AlertTriangle, CheckCircle2, 
   ChevronRight, BookOpen, Clock, TrendingDown,
-  LayoutGrid, Info
+  Info
 } from 'lucide-react';
 import client from '../../api/client';
 import ServerTime from '../../components/ServerTime';

@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { 
   Mail, GraduationCap, Zap, 
-  Trophy, Clock, Activity, Target,
-  Camera, ShieldCheck, Star, 
+  Clock, Activity, Target,
+  ShieldCheck, Star, 
   Award, TrendingUp, Compass, Cpu,
   Sparkles, Flame, CheckCircle2
 } from 'lucide-react';

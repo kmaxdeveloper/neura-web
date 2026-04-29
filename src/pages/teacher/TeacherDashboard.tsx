@@ -12,7 +12,6 @@ const TeacherDashboard: React.FC = () => {
   const [todayLessons, setTodayLessons] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const { user } = useContext(AuthContext) || {};
 
   useEffect(() => {
     const fetchData = async () => {
