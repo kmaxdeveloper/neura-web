@@ -52,7 +52,7 @@ const BaseLayout: React.FC<LayoutProps & { color: string }> = ({ children, color
         style={{ width: `${sidebarWidth}px` }}
         className={`fixed md:relative z-40 h-screen bg-[var(--surface-sidebar)] border-r ${borderCol} ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} ${isResizing ? '' : 'transition-all duration-300'}`}
       >
-        <Sidebar />
+        <Sidebar onMobileClose={() => setIsOpen(false)} />
         
         {/* RESIZE HANDLE */}
         <div 
@@ -71,14 +71,28 @@ const BaseLayout: React.FC<LayoutProps & { color: string }> = ({ children, color
       </aside>
 
       {/* MAIN CONTENT */}
-      <main className="flex-1 p-6 md:p-10 h-screen overflow-y-auto relative custom-scrollbar">
+      <main className="flex-1 h-screen overflow-y-auto relative custom-scrollbar">
         <div className={`absolute top-0 right-0 w-[500px] h-[500px] ${glowCol} blur-[120px] -z-10 pointer-events-none`} />
-        <div className="md:hidden mb-6">
-          <button onClick={() => setIsOpen(!isOpen)} className="p-2 bg-[var(--surface-card)] rounded-xl border border-[var(--border-subtle)]">
-            <Menu />
+        
+        {/* MOBILE HEADER */}
+        <div className="md:hidden sticky top-0 z-20 flex items-center justify-between p-4 bg-black/40 backdrop-blur-2xl border-b border-white/5 mb-6">
+          <div className="flex items-center gap-3">
+             <div className={`w-8 h-8 ${handleColor} rounded-xl shadow-lg flex items-center justify-center`}>
+                <span className="text-sm font-black italic text-white leading-none mt-0.5">N</span>
+             </div>
+             <div className="flex flex-col">
+               <span className="text-sm font-black italic uppercase tracking-tighter leading-none text-white">Neura OS</span>
+               <span className={`text-[8px] ${color === 'cyan' ? 'text-cyan-400' : color === 'purple' ? 'text-purple-400' : 'text-emerald-400'} font-mono tracking-widest uppercase mt-0.5`}>Mobile Access</span>
+             </div>
+          </div>
+          <button onClick={() => setIsOpen(!isOpen)} className="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-colors">
+            <Menu size={20} className="text-white" />
           </button>
         </div>
-        {children}
+
+        <div className="p-4 pt-0 md:p-10">
+          {children}
+        </div>
       </main>
 
       {/* MOBILE OVERLAY */}

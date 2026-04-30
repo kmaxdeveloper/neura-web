@@ -13,17 +13,20 @@ const StudentDashboard: React.FC = () => {
   const { user } = useContext(AuthContext) || {};
   const [schedule, setSchedule] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(null);
+  const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [scheduleRes, statsRes] = await Promise.all([
+        const [scheduleRes, statsRes, profileRes] = await Promise.all([
           client.get('/api/v1/student/today-lessons'),
-          client.get('/api/v1/student/attendance/stats')
+          client.get('/api/v1/student/attendance/stats'),
+          client.get('/api/v1/student/profile')
         ]);
         setSchedule(Array.isArray(scheduleRes.data) ? scheduleRes.data : []);
         setStats(statsRes.data);
+        setProfile(profileRes.data);
       } catch (err) {
         console.error("Dashboard fetch error:", err);
         setSchedule([
@@ -49,7 +52,7 @@ const StudentDashboard: React.FC = () => {
   return (
     <div className="animate-in fade-in duration-700 space-y-8 pb-10">
       {/* 1. Welcome Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
           <h1 className="text-3xl md:text-5xl font-black text-[var(--text-primary)] uppercase italic">
             {t('groups').replace('im', '').replace('My ', '')} <span className="text-emerald-500 font-mono">Hub</span>
@@ -58,22 +61,26 @@ const StudentDashboard: React.FC = () => {
             {t('welcome')}, {user?.username || 'Talaba'} // Terminal Active
           </p>
         </div>
-        <div className="flex gap-3 items-center">
+        <div className="flex flex-wrap gap-2 md:gap-3 items-center">
           <ServerTime />
-          <div className="px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center gap-2">
-            <Zap size={16} className="text-emerald-500" />
-            <span className="text-emerald-500 font-bold text-sm">1250 XP</span>
+          <div className="px-3 py-1.5 md:px-4 md:py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl md:rounded-2xl flex items-center gap-2">
+            <Award size={14} className="text-emerald-500" />
+            <span className="text-emerald-500 font-bold text-xs md:text-sm">{profile?.irisLevelName || `LVL ${profile?.irisLevel || 1}`}</span>
           </div>
-          <button className="p-2 bg-[var(--surface-input)] border border-[var(--border-default)] rounded-2xl hover:bg-[var(--surface-hover)] transition-all relative">
-            <BellRing size={20} className="text-[var(--text-secondary)]" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border-2 border-[var(--surface-base)]" />
+          <div className="px-3 py-1.5 md:px-4 md:py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl md:rounded-2xl flex items-center gap-2">
+            <Zap size={14} className="text-emerald-500" />
+            <span className="text-emerald-500 font-bold text-xs md:text-sm">{typeof profile?.irisPoints === 'number' ? profile.irisPoints.toFixed(1) : (profile?.irisPoints || '0')} XP</span>
+          </div>
+          <button className="p-1.5 md:p-2 bg-[var(--surface-input)] border border-[var(--border-default)] rounded-xl md:rounded-2xl hover:bg-[var(--surface-hover)] transition-all relative">
+            <BellRing size={18} className="text-[var(--text-secondary)]" />
+            <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-[var(--surface-base)]" />
           </button>
         </div>
       </div>
 
       {/* 2. Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="p-6 border border-[var(--border-subtle)] bg-[var(--surface-card)] rounded-[35px] relative overflow-hidden group">
+        <div className="p-5 md:p-6 border border-[var(--border-subtle)] bg-[var(--surface-card)] rounded-[25px] md:rounded-[35px] relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
             <CheckCircle2 size={60} />
           </div>
@@ -84,7 +91,7 @@ const StudentDashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="p-6 border border-[var(--border-subtle)] bg-[var(--surface-card)] rounded-[35px] relative overflow-hidden group">
+        <div className="p-5 md:p-6 border border-[var(--border-subtle)] bg-[var(--surface-card)] rounded-[25px] md:rounded-[35px] relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
             <TrendingUp size={60} />
           </div>
@@ -93,7 +100,7 @@ const StudentDashboard: React.FC = () => {
           <p className="text-[var(--text-secondary)] text-[10px] mt-2 font-bold uppercase tracking-widest italic">Academic Risk Assessment</p>
         </div>
 
-        <div className="p-6 border border-[var(--border-subtle)] bg-[var(--surface-card)] rounded-[35px] relative overflow-hidden group">
+        <div className="p-5 md:p-6 border border-[var(--border-subtle)] bg-[var(--surface-card)] rounded-[25px] md:rounded-[35px] relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
             <Award size={60} />
           </div>

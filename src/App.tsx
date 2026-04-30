@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'rea
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import { LanguageProvider } from './context/LanguageContext';
 import ProtectedRoute from './routes/ProtectedRoute';
+import { Toaster } from 'react-hot-toast';
 
 // Layouts
 import { AdminLayout, TeacherLayout, StudentLayout } from './components/Layouts';
@@ -11,6 +12,8 @@ import { AdminLayout, TeacherLayout, StudentLayout } from './components/Layouts'
 import Login from './pages/Login';
 import Attendance from './pages/Attendance';
 import MizanAI from './pages/MizanAI';
+import Leaderboard from './pages/Leaderboard';
+import Arcade from './pages/Arcade';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -83,6 +86,7 @@ function AppContent() {
               <Route path="logs" element={<SystemLogs />} />
               <Route path="settings" element={<AdminSettings />} />
               <Route path="profile" element={<AdminProfile />} />
+              <Route path="leaderboard" element={<Leaderboard />} />
             </Routes>
           </AdminLayout>
         </ProtectedRoute>
@@ -100,6 +104,7 @@ function AppContent() {
               <Route path="schedule" element={<TeacherSchedule />} />
               <Route path="mizan" element={<MizanAI />} />
               <Route path="profile" element={<TeacherProfile />} />
+              <Route path="leaderboard" element={<Leaderboard />} />
             </Routes>
           </TeacherLayout>
         </ProtectedRoute>
@@ -116,6 +121,8 @@ function AppContent() {
               <Route path="attendance" element={<StudentAttendance />} />
               <Route path="mizan" element={<MizanAI />} />
               <Route path="profile" element={<StudentProfile />} />
+              <Route path="leaderboard" element={<Leaderboard />} />
+              <Route path="arcade" element={<Arcade />} />
             </Routes>
           </StudentLayout>
         </ProtectedRoute>
@@ -134,6 +141,7 @@ function App() {
       <AuthProvider>
         <Router>
           <AppContent />
+          <Toaster position="bottom-right" reverseOrder={false} />
         </Router>
       </AuthProvider>
     </LanguageProvider>

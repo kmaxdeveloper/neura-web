@@ -27,10 +27,10 @@ const AdminDashboard: React.FC = () => {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex flex-col gap-2">
-          <h1 className="text-4xl md:text-6xl font-black text-[var(--text-primary)] uppercase italic tracking-tighter">
+          <h1 className="text-3xl md:text-6xl font-black text-[var(--text-primary)] uppercase italic tracking-tighter">
             {t('control_center').split(' ')[0]} <span className="text-cyan-500 not-italic text-glow-cyan">{t('control_center').split(' ')[1] || 'Center'}</span>
           </h1>
-          <p className="text-[var(--text-secondary)] font-mono text-[10px] uppercase tracking-[0.3em]">
+          <p className="text-[var(--text-secondary)] font-mono text-[8px] md:text-[10px] uppercase tracking-[0.2em] md:tracking-[0.3em]">
             Neura OS // Admin Terminal // v1.0.2 // {t('data_active')}
           </p>
         </div>
@@ -39,7 +39,7 @@ const AdminDashboard: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
         {cards.map((card, i) => (
-          <Link key={i} to={card.path} className="group p-8 border border-[var(--border-subtle)] bg-[var(--surface-card)] rounded-[40px] hover:border-cyan-500/40 hover:bg-cyan-500/[0.05] transition-all duration-300 relative overflow-hidden shadow-lg hover:shadow-cyan-500/10">
+          <Link key={i} to={card.path} className="group p-6 md:p-8 border border-[var(--border-subtle)] bg-[var(--surface-card)] rounded-[30px] md:rounded-[40px] hover:border-cyan-500/40 hover:bg-cyan-500/[0.05] transition-all duration-300 relative overflow-hidden shadow-lg hover:shadow-cyan-500/10">
             <div className="absolute top-6 right-6 p-2 bg-cyan-500/10 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 -translate-y-2 group-hover:translate-y-0">
                <ArrowUpRight className="text-cyan-500" size={20} />
             </div>

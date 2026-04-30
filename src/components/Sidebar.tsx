@@ -12,14 +12,20 @@ import {
   Activity,
   CalendarRange, 
   Clock,
-  Settings2
+  Settings2,
+  Trophy,
+  Gamepad2
 } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLanguage } from '../context/LanguageContext';
 import logo from '../assets/logo.png';
 
-const Sidebar = () => {
+interface SidebarProps {
+  onMobileClose?: () => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ onMobileClose }) => {
 
   const auth = useContext(AuthContext);
   const location = useLocation();
@@ -48,6 +54,7 @@ const Sidebar = () => {
     [ROLES.ADMIN]: [
       { name: t('dashboard'), icon: <LayoutDashboard size={20}/>, path: '/admin/dashboard' },
       { name: t('logs'), icon: <Shield size={20}/>, path: '/admin/logs' },
+      { name: "Leaderboard", icon: <Trophy size={20}/>, path: '/admin/leaderboard' },
       { name: t('settings'), icon: <Settings2 size={20}/>, path: '/admin/settings' },
     ],
     [ROLES.TEACHER]: [
@@ -55,11 +62,14 @@ const Sidebar = () => {
       { name: t('schedule'), icon: <CalendarRange size={20}/>, path: '/teacher/schedule' },
       { name: t('groups'), icon: <Users size={20}/>, path: '/teacher/groups' },
       { name: t('mizan'), icon: <BrainCircuit size={20}/>, path: '/teacher/mizan' },
+      { name: "Leaderboard", icon: <Trophy size={20}/>, path: '/teacher/leaderboard' },
     ],
     [ROLES.STUDENT]: [
       { name: t('profile'), icon: <UserCircle size={20}/>, path: '/student/dashboard' },
       { name: t('timetable'), icon: <Clock size={20}/>, path: '/student/timetable' },
-      { name: t('attendance'), icon: <Activity size={20}/>, path: '/student/attendance' }
+      { name: t('attendance'), icon: <Activity size={20}/>, path: '/student/attendance' },
+      { name: "Leaderboard", icon: <Trophy size={20}/>, path: '/student/leaderboard' },
+      { name: "Arcade", icon: <Gamepad2 size={20}/>, path: '/student/arcade' }
     ]
   };
 
@@ -88,6 +98,7 @@ const Sidebar = () => {
             <Link 
               key={item.name} 
               to={item.path}
+              onClick={() => onMobileClose && onMobileClose()}
               className={`flex items-center gap-4 p-3.5 rounded-2xl transition-all duration-300 group border ${
                 isActive 
                 ? `bg-[var(--surface-hover)] ${theme.color} ${theme.border} shadow-xl` 

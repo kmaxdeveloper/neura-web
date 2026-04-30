@@ -212,9 +212,9 @@ const AdminManagement: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3 mt-4 md:mt-0">
           <ServerTime />
-          <div className="flex items-center gap-3 bg-[var(--surface-card)] p-1.5 rounded-2xl border border-[var(--border-subtle)] shadow-lg">
+          <div className="flex items-center gap-2 md:gap-3 bg-[var(--surface-card)] p-1.5 rounded-2xl border border-[var(--border-subtle)] shadow-lg">
             <div className="relative group">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] group-focus-within:text-cyan-500 transition-colors" size={16} />
               <input 

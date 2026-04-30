@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BrainCircuit, Zap, Users, MapPin, ChevronRight, BookOpen } from 'lucide-react';
+import { BrainCircuit, Zap, Users, MapPin, ChevronRight, BookOpen, Award } from 'lucide-react';
 
 import client from '../../api/client';
 import ServerTime from '../../components/ServerTime';
@@ -10,18 +10,21 @@ const TeacherDashboard: React.FC = () => {
   const { t } = useLanguage();
   const [subjects, setSubjects] = useState<any[]>([]);
   const [todayLessons, setTodayLessons] = useState<any[]>([]);
+  const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [subRes, todayRes] = await Promise.all([
+        const [subRes, todayRes, profileRes] = await Promise.all([
           client.get('/api/v1/teacher/get-subjects'),
-          client.get('/api/v1/teacher/lessons/today')
+          client.get('/api/v1/teacher/lessons/today'),
+          client.get('/api/v1/teacher/profile')
         ]);
         setSubjects(Array.isArray(subRes.data) ? subRes.data : []);
         setTodayLessons(Array.isArray(todayRes.data) ? todayRes.data : []);
+        setProfile(profileRes.data);
       } catch (err) {
         console.error("Dashboard error:", err);
         // Fallback test ma'lumotlari
@@ -52,18 +55,34 @@ const TeacherDashboard: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <p className="text-purple-400 font-mono text-[10px] tracking-[0.3em] uppercase mb-2">Operational Command Center</p>
-          <h1 className="text-5xl font-black text-[var(--text-primary)] uppercase italic leading-none tracking-tighter">
+          <h1 className="text-3xl md:text-5xl font-black text-[var(--text-primary)] uppercase italic leading-none tracking-tighter">
             {t('groups').replace('im', '').replace('My ', '')}  <span className="text-purple-500">{t('dashboard')}</span>
           </h1>
         </div>
-        <ServerTime />
+        <div className="flex flex-wrap gap-2 md:gap-4 items-center">
+          <ServerTime />
+          <div className="px-3 py-1.5 md:px-5 md:py-2.5 bg-purple-500/10 border border-purple-500/20 rounded-xl md:rounded-2xl flex items-center gap-2 md:gap-3">
+            <Award className="text-purple-500" size={16} />
+            <div>
+              <p className="text-[8px] font-black text-purple-400 uppercase tracking-widest leading-none">Authority</p>
+              <p className="text-xs md:text-sm font-black text-purple-500 italic leading-none mt-1">{profile?.irisLevelName || `LVL ${profile?.irisLevel || 1}`}</p>
+            </div>
+          </div>
+          <div className="px-3 py-1.5 md:px-5 md:py-2.5 bg-purple-500/10 border border-purple-500/20 rounded-xl md:rounded-2xl flex items-center gap-2 md:gap-3">
+            <Zap className="text-purple-500" size={16} />
+            <div>
+              <p className="text-[8px] font-black text-purple-400 uppercase tracking-widest leading-none">Points</p>
+              <p className="text-xs md:text-sm font-black text-purple-500 italic leading-none mt-1">{typeof profile?.points === 'number' ? profile.points.toFixed(1) : (profile?.points || '0')} IRIS</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* MATRIX SUGGESTION (Aynan hozirgi dars uchun UI) */}
       <div className="relative group">
          <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-[40px] blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
-         <div className="relative bg-[var(--surface-card)] border border-[var(--border-default)] rounded-[40px] p-8 flex flex-col md:flex-row items-center gap-8">
-            <div className="w-20 h-20 rounded-3xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20">
+         <div className="relative bg-[var(--surface-card)] border border-[var(--border-default)] rounded-[30px] md:rounded-[40px] p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 md:gap-8">
+            <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20">
                <BrainCircuit className="text-purple-500 animate-pulse" size={40} />
             </div>
             <div className="flex-1 text-center md:text-left">
