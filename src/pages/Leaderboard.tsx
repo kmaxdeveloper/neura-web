@@ -6,10 +6,8 @@ import {
 } from 'lucide-react';
 import client from '../api/client';
 import ServerTime from '../components/ServerTime';
-import { useLanguage } from '../context/LanguageContext';
 
 const Leaderboard: React.FC = () => {
-  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'students' | 'teachers'>('students');
   const [students, setStudents] = useState<any[]>([]);
   const [teachers, setTeachers] = useState<any[]>([]);
